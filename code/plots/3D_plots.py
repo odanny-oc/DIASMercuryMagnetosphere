@@ -12,7 +12,7 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from matplotlib.colors import Normalize
 from PIL import Image
 
-# load the texture
+# Load the texture
 img = Image.open("../plots_and_images/mercury_texture.jpg")
 img = np.array(img) / 255.0  # normalise to [0, 1]
 
@@ -97,5 +97,5 @@ plt.colorbar(lc, ax=ax, pad=0.1, label=r'Total Magnetic Field strength ($|B|$ nT
 
 ax.set_aspect('equal')
 
-plt.savefig("./positional_data_mag.svg")
+plt.savefig("../data/positional_data_mag.svg")
 plt.show()
