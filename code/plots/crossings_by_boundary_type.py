@@ -77,26 +77,14 @@ for i in range(len(peak_times) - 1):
         orbit_list.append(crossing_times[mask])
 
 
-# Look for missing time in the orbit list
-
-found_crossing_times = np.concatenate(orbit_list)
-
-np.savetxt("./found_crossings.csv", Time(found_crossing_times), fmt='%s')
-np.savetxt("./crossing_times.csv", Time(crossing_times), fmt='%s')
-
-crossing_mask = []
-for i in range(len(crossing_times)):
-    index = np.searchsorted(found_crossing_times, crossing_times[i], side='left')
-    if index == 0 or index == len(found_crossing_times):
-        crossing_mask.append(i)
-
-print(crossing_times[crossing_mask])
-print(len(crossing_times[crossing_mask]))
-
 time_bins = np.arange(6,13, 0.167)
 
 delta_t_numeric = [dt.total_seconds()/ 3600 for dt in delta_t_between_orbits]
+
 delta_t_between_orbits_hist = HistogramPanel(delta_t_numeric, bins=time_bins)
+
+counts, _ = np.histogram(delta_t_numeric, bins=time_bins)
+print(np.min(counts[counts>0]), np.max(counts))
 
 delta_t_between_orbits_hist.ax_set_params = {
         "title": "Orbit length for each orbit",
