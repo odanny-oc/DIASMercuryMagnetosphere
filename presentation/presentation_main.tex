@@ -1,0 +1,105 @@
+%! TeX program = lualatex
+
+\documentclass[12pt]{beamer}
+\usetheme{wildcat}
+\usepackage{mathtools}
+\usepackage[normalem]{ulem}
+\usepackage{multicol}
+\usepackage{physics}
+\usepackage{amssymb} %maths stuff%
+\usepackage{esint} %for integrals
+\setcounter{tocdepth}{4} %subsubsections in toc
+\setlength{\parindent}{0pt} %no indent
+% \usepackage[nameinlink, noabbrev]{cleveref} %refs
+% \usepackage[hidelinks]{hyperref}" ,
+% \usepackage[nottoc]{tocbibind}
+\usepackage{tikz} %old figures package
+\usepackage{pythonhighlight} % insert python code \begin{python}
+\hfuzz=16pt
+% \usepackage{siunitx} %for tables
+\usepackage{import}
+\usepackage{caption}
+\usepackage[dvipsnames]{xcolor} %for coloured text
+\usepackage{subcaption} %for subfigures
+\usepackage{pstool}
+\usepackage{xifthen}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\usepackage{graphicx}
+\usepackage{scalefnt}
+\usepackage[inkscapelatex=false]{svg}
+\usepackage{wrapfig}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\geometry{paperwidth=16cm,paperheight=9cm}
+\usepackage{array}
+% \usepackage{movie15}
+\usepackage{subfiles}
+
+\graphicspath{{./images/}}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{\insertframenumber}
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{enumerate items}[default]
+\setbeamercolor{item}{fg=red}
+\usefonttheme[onlymath]{serif}
+
+%\renewcommand{\figurename}{fig} %allows custom figure numbering
+\renewcommand{\tablename}{Table}
+
+%
+\makeatletter
+\def\smallunderbrace#1{\mathop{\vtop{\m@th\ialign{##\crcr
+   $\hfil\displaystyle{#1}\hfil$\crcr
+   \noalign{\kern3\p@\nointerlineskip} %creates \smallunderbrace command
+   \tiny\upbracefill\crcr\noalign{\kern3\p@}}}}\limits}
+\makeatother
+%
+
+\captionsetup[figure]{labelformat=empty}
+
+% \renewcommand{\backgroundPath}{}
+
+\usepackage{fancybox}
+\usepackage{empheq}
+\usepackage{tcolorbox} %Boxes for theorems and definitions
+\tcbuselibrary{theorems}
+
+\newtcbtheorem[number within=section]{mydef}{}%
+{colback=White!20,colframe=Black!90!black,fonttitle=\bfseries}{def}
+
+\newcommand{\beamereq}[2]{%
+\begin{mydef*}{#1}
+#2
+\end{mydef*}}
+
+\renewcommand{\maketitle}{
+    \begingroup
+        \setbeamertemplate{footline}{}
+       % \setbeamertemplate{background canvas}{
+       %     \includegraphics[height=\paperheight, width = \paperwidth]{\backgroundPath}
+       % }
+        \begin{frame}
+            \titlepage
+        \end{frame}
+    \endgroup
+}
+
+
+\title{The Dynamics of Mercury's Magnetic Boundaries}
+
+\setbeamercolor{author}{fg=white}
+\setbeamercolor{date}{fg=white}
+% \addtobeamertemplate{title background}{\pgfsetfillopacity{0.7}}{\pgfsetfillopacity{1}}
+\author{
+    O. Daniel O'Carroll
+} 
+\date{\today}
+\institute[]{Dublin Institute of Advanced Studies}
+\begin{document}
+\maketitle
+
+\subfile{./slides.tex}
+
+\end{document}

@@ -1,0 +1,85 @@
+\documentclass[./presentation_main.tex]{subfiles}
+\begin{document}
+\begin{frame}[c]{Magnetic Field Regions}
+    \begin{columns}[T]
+\column{0.5\linewidth}
+\begin{itemize}
+    \item<1-> Three regions
+        \begin{itemize}[label=--]
+            \item<2-> Solar Wind
+            \item<3-> \textit{Magnetosheath}
+            \item<4-> Magnetosphere
+        \end{itemize}
+\end{itemize}
+\column{0.5\linewidth}
+        \only<1>{\only<1>{\vphantom{\includesvg[width=\linewidth]{./images/magnetic_regions_magnetosphere.svg}}}}
+        \only<2>{
+            \begin{figure}[H]
+                \raggedleft
+                \includesvg[width=\linewidth]{./images/magnetic_regions_solar_wind.svg}
+                \label{figsolarwind}
+            \end{figure}
+            %
+        }
+        \only<3>{
+            \begin{figure}[H]
+                \raggedleft
+                \includesvg[width=\linewidth]{./images/magnetic_regions_magnetosheath.svg}
+                \label{figsolarwind}
+            \end{figure}
+            %
+        }
+        \only<4>{
+            \begin{figure}[H]
+                \raggedleft
+                \includesvg[width=\linewidth]{./images/magnetic_regions_magnetosphere.svg}
+                \label{figsolarwind}
+            \end{figure}
+            %
+        }
+\end{columns}
+\end{frame}
+\begin{frame}[c]{Boundary Crossing}
+\only<1>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{./images/messenger_orbit.svg}
+    \label{figmessengerorbit}
+\end{figure}
+}
+%
+\only<2>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{./images/messenger_orbit_crossings.svg}
+    \label{figboundarycrossing}
+\end{figure}
+}
+\end{frame}
+\begin{frame}[c]{Variability of Boundaries}
+    \only<1>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{./images/messenger_orbit_variable_boundaries.svg}
+    \label{figvariabilityboundary}
+\end{figure}
+%
+    }
+\only<2>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=\linewidth]{./images/messenger_orbit_multiple_crossings.svg}
+    \label{figmultiplecrossings}
+\end{figure}
+%
+}
+\end{frame}
+\begin{frame}[c]{Encounters}
+\begin{figure}[H]
+    \centering
+    \includesvg[width=\linewidth]{./images/messenger_orbit_encounters.svg}
+    \label{figencounter}
+\end{figure}
+%
+\end{frame}
+\end{document}
