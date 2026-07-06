@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np 
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -6,26 +6,21 @@ import matplotlib as mpl
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 from matplotlib import colormaps as cm
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
-from matplotlib.lines import Line2D
-from matplotlib.colors import Normalize
 from hermpy.plotting import MultiPanel, SpectrogramPanel, TimeseriesPanel
 
 from astropy.time import TimeDelta
-from astropy.table import QTable
+from astropy.table import QTable, vstack
 from sunpy.time import TimeRange
 from astropy.time import Time
 
 import datetime as dt
-import sys
 import os
-import pickle
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from hermpymod.classes.panels import HistogramPanel, PlanarplotPanel
 from hermpymod.functions.ephemeris_downsampler import parse_spice_downsampled
+from hermpymod.functions.data_per_orbit import orbit_data
+
 
 home_dir = os.getenv('HOME')
 data_dir = os.path.join(home_dir, ".ephemeris_data/")
@@ -45,19 +40,9 @@ crossing_data = QTable.read(data_dir + "hollman_2025_crossing_list.ecsv")
 
 crossing_times =Time(crossing_data["UTC"]).to_datetime()
 
-orbit_list = []
+crossings_per_orbit_list = orbit_data()
 
-
-for i in range(len(peak_times) - 1):
-    time_start =  peak_times[i]
-    time_end = peak_times[i + 1]
-    orbit_time = time_end - time_start 
-    if orbit_time > timedelta(hours=13) or orbit_time < timedelta(hours=7):
-        continue
-    else:
-        mask = (crossing_times >= peak_times[i]) & (crossing_times <= peak_times[i + 1])
-        orbit_list.append(crossing_times[mask])
-
+crossings_per_orbit_times = [orbit["UTC"].to_datetime() for orbit in crossings_per_orbit_list]
 
 delta_t_between_orbits = pd.to_timedelta(peak_data["delta t"])
 
@@ -68,14 +53,14 @@ types_config = [
     ("OUT", ["OUT" in crossing_data["Label"][i] for i in range(len(crossing_data))], "orange"),
         ]
 
-total_crossing_numbers = [len(i) for i in orbit_list]
+total_crossing_numbers = [len(i) for i in crossings_per_orbit_list]
 
 histograms = []
 
 for label, mask, color in types_config:
     time_type = crossing_times[mask]
 
-    num_crossing_from_orbit = [len([time for time in orbit if time in time_type]) for orbit in orbit_list]
+    num_crossing_from_orbit = [len([time for time in orbit if time in time_type]) for orbit in crossings_per_orbit_times]
     hist = HistogramPanel(num_crossing_from_orbit, bins='auto', color=color)
 
     hist.ax_set_params = {

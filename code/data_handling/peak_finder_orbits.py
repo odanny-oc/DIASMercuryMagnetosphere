@@ -56,9 +56,9 @@ ax.scatter(time, distance, s=0.1, color="C0", rasterized=True)
 # Find periapsis to define orbits
 peaks = find_peaks(-distance, plateau_size=1,distance=100, height=-1.5)[0]
 
-# Include first and last partial orbit
+# Include last partial orbit
 peaks = np.append(peaks, -1)
-peaks = np.insert(peaks, 0 , 0)
+# peaks = np.insert(peaks, 0 , 0)
 
 print("Number of peaks", len(peaks))
 
@@ -66,17 +66,23 @@ delta_t_between_orbits = [0]
 
 peak_times = Time(time[peaks]).to_datetime()
 
+orbit_number = [0] 
+
+
 for i in range(len(peak_times) - 1):
     time_start =  peak_times[i]
     time_end = peak_times[i + 1]
+    orbit_number.append(i+1)
     orbit_time = time_end - time_start 
     delta_t_between_orbits.append(orbit_time)
+
 
 peaks_data = QTable(
     {
         "UTC": time[peaks],
         "|R|": distance[peaks],
         "delta t": delta_t_between_orbits,
+        "Orbit Number": orbit_number,
     }
 )
 
@@ -120,10 +126,10 @@ for label in crossings_dict.keys():
         label=label,
     )
 
-ax.set_title(f"MESSENGER Distance from Mercury (2011-3-31)")
+ax.set_title(f"MESSENGER Distance from Mercury ({time[peaks][0]} - {time[peaks][-1]})")
 ax.set_ylabel(r"Distance from Mercury $\|R\|$ (Mercury Radii $R_M$)")
 ax.set_xlabel(f"Time MM:DD:HH (UTC)")
-ax.set_xlim(dt.datetime(2011,3,31), dt.datetime(2011,4,3))
+# ax.set_xlim(dt.datetime(2011,3,31), dt.datetime(2011,4,3))
 ax.grid()
 
 plt.legend(loc='upper left')

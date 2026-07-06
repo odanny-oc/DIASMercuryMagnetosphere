@@ -8,5 +8,6 @@ src/hermpymod/classes/__init__.py
 src/hermpymod/classes/panels.py
 src/hermpymod/functions/__init__.py
 src/hermpymod/functions/crossings_plotter.py
+src/hermpymod/functions/data_per_orbit.py
 src/hermpymod/functions/ephemeris_downsampler.py
 src/hermpymod/functions/mag_data_plotter.py

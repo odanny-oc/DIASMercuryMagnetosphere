@@ -1,29 +1,16 @@
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 import numpy as np
 
-from astropy.table import QTable, vstack, Column
-import astropy.units as u
-from astropy.time import Time
-from astropy.table import QTable, hstack, vstack
+from astropy.table import QTable
 from sunpy.time import TimeRange
 
-from hermpy.plotting import Panel, TimeseriesPanel
-from hermpy.data import parse_messenger_fips, parse_messenger_mag
-from hermpy.net import ClientSPICE, ClientMESSENGER
+from hermpy.plotting import  TimeseriesPanel
+from hermpy.data import parse_messenger_mag
+from hermpy.net import ClientMESSENGER
 from hermpy.utils import Constants as c
-
-import spiceypy as spice
-
-import datetime as dt
-
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 from hermpymod.functions.crossings_plotter import plot_crossings
+
 
 c = ClientMESSENGER()
 

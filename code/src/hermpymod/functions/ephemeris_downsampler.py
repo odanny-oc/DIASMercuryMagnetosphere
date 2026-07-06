@@ -31,7 +31,7 @@ R_M = u.def_unit("R_M", mercury_rad)
 u.add_enabled_units(R_M)
 
 # 2011-03-23T23:48 first crossing
-mission_start = Time("2011-03-23 17:00:00").to_datetime()
+mission_start = Time("2011-03-18 00:00:00").to_datetime()
 mission_end = Time("2015-04-30 19:00:00").to_datetime()
 delta_time = dt.timedelta(hours=12)
 sample_number = (mission_end - mission_start) // delta_time

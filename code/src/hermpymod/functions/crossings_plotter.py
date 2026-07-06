@@ -36,6 +36,8 @@ def plot_crossings(t_start, t_end, ax):
                 "BS_IN" :{ "mask": crossing_list["Label"] == "BS_IN", "color": 'red'},
                 "MP_OUT":{ "mask": crossing_list["Label"] == "MP_OUT","color": 'purple'},
                 "MP_IN" :{ "mask": crossing_list["Label"] == "MP_IN", "color": 'blue'},
+                "UNPHYSICAL (SW - MSp)" :{ "mask": crossing_list["Label"] == "UNPHYSICAL (SW -> MSp)" , "color": 'gray'},
+                "UNPHYSICAL (MSp - SW)" :{ "mask": crossing_list["Label"] == "UNPHYSICAL (MSp -> SW)" , "color": 'brown'},
                     }
 
     if not isinstance(ax, np.ndarray):
