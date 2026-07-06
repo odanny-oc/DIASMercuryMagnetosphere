@@ -1,0 +1,199 @@
+\documentclass[./presentation_main.tex]{subfiles}
+\begin{document}
+\begin{frame}[c]{Magnetic Field Regions}
+    \begin{columns}[T]
+\column{0.5\linewidth}
+\begin{itemize}
+    \item<1-> Three regions
+        \begin{itemize}[label=--]
+            \item<2-> Solar Wind
+            \item<3-> \textit{Magnetosheath}
+            \item<4-> Magnetosphere
+        \end{itemize}
+\end{itemize}
+\column{0.5\linewidth}
+        \only<1>{\only<1>{\vphantom{\includesvg[width=\linewidth]{magnetic_regions_magnetosphere.svg}}}}
+        \only<2>{
+            \begin{figure}[H]
+                \raggedleft
+                \includesvg[width=\linewidth]{magnetic_regions_solar_wind.svg}
+                \label{figsolarwind}
+            \end{figure}
+            %
+        }
+        \only<3>{
+            \begin{figure}[H]
+                \raggedleft
+                \includesvg[width=\linewidth]{magnetic_regions_magnetosheath.svg}
+                \label{figsolarwind}
+            \end{figure}
+            %
+        }
+        \only<4>{
+            \begin{figure}[H]
+                \raggedleft
+                \includesvg[width=\linewidth]{magnetic_regions_magnetosphere.svg}
+                \label{figsolarwind}
+            \end{figure}
+            %
+        }
+\end{columns}
+\end{frame}
+\begin{frame}[c]{Boundary Crossing}
+\only<1>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{messenger_orbit.svg}
+    \label{figmessengerorbit}
+\end{figure}
+}
+%
+\only<2>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{messenger_orbit_crossings.svg}
+    \label{figboundarycrossing}
+\end{figure}
+}
+\end{frame}
+\begin{frame}[c]{Variability of Boundaries}
+    \only<1>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{messenger_orbit_variable_boundaries.svg}
+    \label{figvariabilityboundary}
+\end{figure}
+%
+    }
+\only<2>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=\linewidth]{messenger_orbit_multiple_crossings.svg}
+    \label{figmultiplecrossings}
+\end{figure}
+%
+}
+\end{frame}
+\begin{frame}[c]{Encounters}
+\begin{figure}[H]
+    \centering
+    \includesvg[width=\linewidth]{messenger_orbit_encounters.svg}
+    \label{figencounter}
+\end{figure}
+%
+\end{frame}
+\begin{frame}[c]{Regions, Crossings, \& Encounters on MAG Data}
+    \only<1>{
+        \begin{figure}[H]
+            \centering
+            \includesvg[width=0.8\linewidth]{./images/plots/mp_crossings.svg}
+            \label{figmpcrossingsmag}
+        \end{figure}
+        %
+    }
+    \only<2>{
+        \begin{figure}[H]
+            \centering
+            \includesvg[width=0.8\linewidth]{./images/plots/bs_crossings.svg}
+            \label{figbscrossingsmag}
+        \end{figure}
+        %
+    }
+\end{frame}
+\begin{frame}[c]{Defining an Orbit}
+    \only<2>{
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.6\linewidth]{precession.svg}
+    \label{figprecession}
+\end{figure}
+%
+}
+\only<3>{
+    \vspace{-10pt}
+    \begin{columns}[T]
+        \column{0.5\linewidth}
+        \begin{figure}[H]
+            \centering
+            \includesvg[width=\linewidth]{precession.svg}
+            \label{figprecession}
+        \end{figure}
+        \column{0.5\linewidth}
+        \begin{figure}[H]
+            \centering
+            \includesvg[width=\linewidth]{../plots_and_images/orbits_plot_with_peaks.svg}
+            \caption{\scriptsize Plot of radial distance from Mercury over a few days. The red crosses mark the periapsides, while the rest of the crosses mark the type of boundary crossing.}
+            \label{figephemerisdata}
+        \end{figure}
+          
+    \end{columns}
+    %
+}
+\only<4>{
+    \begin{figure}[H]
+        \centering
+        \includesvg[width=0.75\linewidth]{../plots_and_images/hollman_orbit_times.svg}
+        \caption{\scriptsize Lengths of orbits found from ephemeris data.}
+        \label{figorbitlengths}
+    \end{figure}
+    %
+}
+\end{frame}
+\begin{frame}[c]{Number of Crossings per Orbit}
+\pause
+\vspace{-10pt}
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{crossings_per_orbit_hollman.svg} \vspace{-20pt}
+    \caption{\scriptsize Histogram of number of crossing per orbit using Hollman's 2025 list of crossings, determined with a region classifier machine learner algorithm.}
+    \label{fighollmancrossings}
+\end{figure}
+%
+\end{frame}
+\begin{frame}[c]{Number of Crossing per Orbit}
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.75\linewidth]{crossings_per_orbit_hollman_log.svg}
+    \label{figloghollman}
+\end{figure}
+%
+\end{frame}
+\begin{frame}[c]{Number of Each Crossing Type per Orbit}
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.6\linewidth]{../plots_and_images/hollman_bs_mp_per_orbit.svg}
+    \caption{\scriptsize Number of crossing of each type per orbit in the Hollman list.}
+    \label{fignumberofcrossingtype}
+\end{figure}
+%
+\end{frame}
+\begin{frame}[c]{Time Between Crossings}
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{../plots_and_images/hollman_crossings_dt.svg}
+    \captionsetup{font=footnotesize}
+    \caption{}
+    \label{figdtbetweencrossings}
+\end{figure}
+%
+\end{frame}
+\begin{frame}[c]{Time Between Each Crossing Type}
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\linewidth]{../plots_and_images/hollman_crossings_dt_bs_mp.svg}
+    \captionsetup{font=footnotesize}
+    \caption{}
+    \label{figdtbetweencrossingsbsmp}
+\end{figure}
+%
+\end{frame}
+\begin{frame}[c]{Time Between Encounters}
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\linewidth]{../plots_and_images/Hollman_dt_encounters.svg}
+    \caption{}
+    \label{fighollmanencounters}
+\end{figure}
+%
+\end{frame}
+\end{document}

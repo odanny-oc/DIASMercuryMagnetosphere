@@ -1,0 +1,12 @@
+pyproject.toml
+src/hermpymod/__init__.py
+src/hermpymod.egg-info/PKG-INFO
+src/hermpymod.egg-info/SOURCES.txt
+src/hermpymod.egg-info/dependency_links.txt
+src/hermpymod.egg-info/top_level.txt
+src/hermpymod/classes/__init__.py
+src/hermpymod/classes/panels.py
+src/hermpymod/functions/__init__.py
+src/hermpymod/functions/crossings_plotter.py
+src/hermpymod/functions/ephemeris_downsampler.py
+src/hermpymod/functions/mag_data_plotter.py
