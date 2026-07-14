@@ -10,11 +10,17 @@ data_dir = os.path.join(home_dir , '.ephemeris_data/')
 Need to download Philpott list from https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/1U6FEO
 """
 
-philpott_crossings = pd.read_csv(data_dir + 'philpott_list.tab', delimiter=\t)
+try:
+    philpott_crossings = pd.read_csv(data_dir + 'philpott_list.tab', delimiter="\t" )
+except FileNotFoundError:
+    try: 
+        philpott_crossings = pd.read_csv(data_dir + 'supporting_table_S1.tab', delimiter="\t" )
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Philpott list not file in {data_dir}. Please save the Philpott 'supporting_table_S1.tab' file to {data_dir}.")
 
 data_gap_masks ={
-        "9" : philpott_crossings["Boundary number"] != 9.0,
-        "10" : philpott_crossings["Boundary number"] != 10.0
+        "9" : philpott_crossings["Boundarynumber"] != 9.0,
+        "10" : philpott_crossings["Boundarynumber"] != 10.0
         }
 
 philpott_crossings = philpott_crossings[data_gap_masks["9"]]
@@ -32,38 +38,39 @@ boundarynumber_dict = {
         }
 
 label = []
-for i in philpott_crossings["Boundary number"]:
+for i in philpott_crossings["Boundarynumber"]:
     label.append(boundarynumber_dict[i])
     
 
 philpott_crossings["UTC"] = [
     f"{int(y)}:{int(d):03d}:{int(h):02d}:{int(m):02d}:{s:06.3f}"
-    for y, d, h, m, s in zip(philpott_crossings["Year"], philpott_crossings["Day of year"], philpott_crossings["Hour"], philpott_crossings["Minute"], philpott_crossings["Second"])
+    for y, d, h, m, s in zip(philpott_crossings["Year"], philpott_crossings["Dayofyear"], philpott_crossings["Hour"], philpott_crossings["Minute"], philpott_crossings["Second"])
     ]
 
 philpott_dt = pd.DataFrame()
 
 philpott_dt["UTC"] = philpott_crossings["UTC"]
-philpott_dt["X MSO"] = philpott_crossings["X_MSO (km)"]
-philpott_dt["Y MSO"] = philpott_crossings["Y_MSO (km)"]
-philpott_dt["Z MSO"] = philpott_crossings["Z_MSO (km)"]
+philpott_dt["X MSO"] = philpott_crossings["XMSO(km)"]
+philpott_dt["Y MSO"] = philpott_crossings["YMSO(km)"]
+philpott_dt["Z MSO"] = philpott_crossings["ZMSO(km)"]
 philpott_dt["Label"] = label
+philpott_dt["Orbit Number"] = philpott_crossings["Orbitnumber"]
 
-philpott_dt.to_csv(data_dir + 'philpott_crossings_list_2020.csv')
+philpott_dt.to_csv(data_dir + 'philpott_crossings_list_2020.csv', index=False)
 
 """
 Order Philpott data like Sun's encounter list
 """
 
 boundarynumber_masks ={
-        "1" : {"mask": philpott_crossings["Boundary number"] == 1.0, "time": "Time Start" , "label": "BSI"},
-        "2" : {"mask": philpott_crossings["Boundary number"] == 2.0, "time": "Time End" , "label": "BSI"},
-        "3" : {"mask": philpott_crossings["Boundary number"] == 3.0, "time": "Time Start", "label": "MPI"},
-        "4" : {"mask": philpott_crossings["Boundary number"] == 4.0, "time": "Time End", "label": "MPI"},
-        "5" : {"mask": philpott_crossings["Boundary number"] == 5.0, "time": "Time Start", "label": "MPO"},
-        "6" : {"mask": philpott_crossings["Boundary number"] == 6.0, "time": "Time End" , "label": "MPO"},
-        "7" : {"mask": philpott_crossings["Boundary number"] == 7.0, "time": "Time Start" , "label": "BSO"},
-        "8" : {"mask": philpott_crossings["Boundary number"] == 8.0, "time": "Time End" , "label": "BSO"},
+        "1" : {"mask": philpott_crossings["Boundarynumber"] == 1.0, "time": "Time Start" , "label": "BSI"},
+        "2" : {"mask": philpott_crossings["Boundarynumber"] == 2.0, "time": "Time End" , "label": "BSI"},
+        "3" : {"mask": philpott_crossings["Boundarynumber"] == 3.0, "time": "Time Start", "label": "MPI"},
+        "4" : {"mask": philpott_crossings["Boundarynumber"] == 4.0, "time": "Time End", "label": "MPI"},
+        "5" : {"mask": philpott_crossings["Boundarynumber"] == 5.0, "time": "Time Start", "label": "MPO"},
+        "6" : {"mask": philpott_crossings["Boundarynumber"] == 6.0, "time": "Time End" , "label": "MPO"},
+        "7" : {"mask": philpott_crossings["Boundarynumber"] == 7.0, "time": "Time Start" , "label": "BSO"},
+        "8" : {"mask": philpott_crossings["Boundarynumber"] == 8.0, "time": "Time End" , "label": "BSO"},
         }
 
 rows = []

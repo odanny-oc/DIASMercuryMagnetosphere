@@ -18,7 +18,6 @@ import datetime as dt
 import os
 
 from hermpymod.classes.panels import HistogramPanel, PlanarplotPanel
-from hermpymod.functions.ephemeris_downsampler import parse_spice_downsampled
 from hermpymod.functions.data_per_orbit import orbit_data
 
 

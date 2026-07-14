@@ -12,14 +12,10 @@ from astropy.table import QTable, hstack, vstack, Column
 import astropy.units as u
 from astropy.time import Time
 
-import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from hermpymod.classes.panels import PlanarplotPanel
-from hermpymod.classes.panels import HistogramPanel
-from hermpymod.functions.ephemeris_downsampler import parse_spice_downsampled 
+from hermpymod.classes.panels import PlanarplotPanel, HistogramPanel
+from hermpymod.functions.encounters import parse_encounters_list
 
 
 home_dir = os.getenv('HOME')
@@ -88,12 +84,14 @@ class CDFPanel(Panel):
 
 phil_encounter_data = QTable.read(data_dir + 'philpott_encounter_list_2020.csv')
 
+sun_encounter_data = QTable.read(data_dir + 'sun_2023_crossing.csv')
+
+hollman_encounter_data = parse_encounters_list()
+
 phil_dt_bs, phil_dt_mp = dt_encounters(phil_encounter_data)
 
-sun_encounter_data = QTable.read(data_dir + 'sun_2023_crossing.csv')
 sun_dt_bs, sun_dt_mp = dt_encounters(sun_encounter_data)
 
-hollman_encounter_data = QTable.read(data_dir + 'hollman_encounters_list_2025.csv')
 holl_dt_bs, holl_dt_mp = dt_encounters(hollman_encounter_data)
 
 bins = np.arange(0, max(sun_dt_bs) + 2, 0.167)
@@ -105,10 +103,18 @@ configs = [
         ]
         
 for data, name in configs:
+
+    dts = []
+    for i in range(len(data) - 1):
+        dts.append(Time(data["Time Start"][i+1]).to_datetime() - Time(data["Time End"][i]).to_datetime())
+
+
+    dts = [i.total_seconds()/3600 for i in dts]
     bs, mp = dt_encounters(data)
     bs_mp = [
             (bs, "BS", "yellow"),
             (mp, "MP", "purple"),
+            (dts, "all", "Green"),
             ]
     hists = []
     for data_type, label, color in bs_mp:
@@ -125,6 +131,8 @@ for data, name in configs:
     plot = hists[0] + hists[1]
     plot.plot(show=False, figsize=(18,16))
     plt.savefig(img_dir + f"{name}_dt_encounters_bs_mp.svg")
+    hists[-1].plot(show=False)
+    plt.savefig(img_dir + f"{name}_dt_encounters_all.svg")
 
 
     encounter_hist = HistogramPanel(data["Encounter Duration"], bins=bins)
@@ -145,12 +153,14 @@ bs_cdf_holl_sun = CDFPanel([holl_dt_bs, sun_dt_bs], label=["Hollman", "Sun"])
 
 bs_cdf_list = [bs_cdf_sun_phil, bs_cdf_holl_phil, bs_cdf_holl_sun]
 
+
 for i in bs_cdf_list:
     i.ax_set_params = {
             "title" :"Cumulative Distribtution Functions (CDF) for Time between BS Encounters",
             "xlabel": "Time (Hours)",
             "xlim": (0,15),
     }
+
 
 mp_cdf_sun_phil = CDFPanel([sun_dt_mp, phil_dt_mp], label=["Sun", "Philpott"])
 mp_cdf_holl_phil = CDFPanel([holl_dt_mp, phil_dt_mp], label=["Hollman", "Philpott"])
@@ -169,9 +179,12 @@ cdf_sun_phil = bs_cdf_sun_phil + mp_cdf_sun_phil
 cdf_holl_phil = bs_cdf_holl_phil + mp_cdf_holl_phil
 cdf_holl_sun = bs_cdf_holl_sun + mp_cdf_holl_sun
 
-cdf_sun_phil.plot(show=False, sharex=False)
-cdf_holl_phil.plot(show=False, sharex=False)
-cdf_holl_sun.plot(show=False, sharex=False)
+cdf_sun_phil.plot(show=False, sharex=False, figsize=(18,16))
+plt.savefig(img_dir + "cdf_sun_phil.svg")
+cdf_holl_phil.plot(show=False, sharex=False, figsize=(18,16))
+plt.savefig(img_dir + "cdf_hollman_phil.svg")
+cdf_holl_sun.plot(show=False, sharex=False, figsize=(18,16))
+plt.savefig(img_dir + "cdf_hollman_sun.svg")
 
 for data, name in configs:
     bs, mp = dt_encounters(data, mode='diff')
@@ -185,7 +198,7 @@ for data, name in configs:
         hist.ax_set_params = {
                 "title": f"Time between {label} Encounters ({name})",
                 "xlabel": "Time (Hours)",
-                "ylabel": "Number of crossings",
+                "ylabel": "Number of encounters",
                 "yscale": "log",
                 "xlim" : (0,12)
                 }

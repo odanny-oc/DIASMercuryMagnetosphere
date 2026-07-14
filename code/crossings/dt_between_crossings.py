@@ -17,7 +17,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from hermpymod.classes.panels import PlanarplotPanel
 from hermpymod.classes.panels import HistogramPanel
-from hermpymod.functions.ephemeris_downsampler import parse_spice_downsampled, parse_crossing_list
+from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 
 
 home_dir = os.getenv('HOME')

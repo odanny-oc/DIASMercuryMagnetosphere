@@ -22,6 +22,7 @@ def total_mag_field(data):
     return total_data, mag_field_data
 
 
+
 def mag_data_plotter(time):
     t_start = time[0]
     t_end = time[-1]
@@ -35,10 +36,10 @@ def mag_data_plotter(time):
     mag_table : QTable = parse_messenger_mag(mag_data_encounter, time_range)
 
     directional_mag_data, total_mag_data = total_mag_field(mag_table)
-    totol_mag_plot = TimeseriesPanel(total_mag_data)
+    total_mag_plot = TimeseriesPanel(total_mag_data)
     directional_mag_plot = TimeseriesPanel(directional_mag_data)
     
-    mag_plot = directional_mag_plot + totol_mag_plot
+    mag_plot = directional_mag_plot + total_mag_plot
 
     fig_mag, ax_mag = mag_plot.plot(show=False)
 

@@ -1,22 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy.table import QTable, vstack
+from astropy.table import QTable
 from sunpy.time import TimeRange
 from astropy.time import Time
 
-from hermpy.data import parse_messenger_fips, parse_messenger_mag
-from hermpy.net import ClientMESSENGER
-from hermpy.plotting import MultiPanel, SpectrogramPanel, TimeseriesPanel
-
 import matplotlib.pyplot as plt
-import datetime as dt
 from scipy.signal import find_peaks
 import spiceypy as spice
 
-import sys
 import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from hermpymod.classes.panels import PlanarplotPanel
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list, parse_spice_downsampled
@@ -36,7 +28,7 @@ plt.style.use(images_dir + "presentation.mplstyle")
 
 ephemeris_data = parse_spice_downsampled()
 
-crossing_list = QTable.read(data_dir + "hollman_2025_crossing_list.ecsv")
+crossing_list = parse_crossing_list()
 
 crossing_times = Time(crossing_list["UTC"]).to_datetime()
 
@@ -51,7 +43,7 @@ fig, ax = plt.subplots()
 time = ephemeris_data["UTC"].to_datetime()
 distance = np.array(ephemeris_data["|R|"])
 
-ax.scatter(time, distance, s=0.1, color="C0", rasterized=True)
+ax.plot(time, distance, color="C0",lw =0.4, zorder=1)
 
 # Find periapsis to define orbits
 peaks = find_peaks(-distance, plateau_size=1,distance=100, height=-1.5)[0]
@@ -80,8 +72,11 @@ for i in range(len(peak_times) - 1):
 peaks_data = QTable(
     {
         "UTC": time[peaks],
+        "X MSO": ephemeris_data["X MSO"][peaks],
+        "Y MSO": ephemeris_data["Y MSO"][peaks],
+        "Z MSO": ephemeris_data["Z MSO"][peaks],
         "|R|": distance[peaks],
-        "delta t": delta_t_between_orbits,
+        "Delta t": delta_t_between_orbits,
         "Orbit Number": orbit_number,
     }
 )
@@ -134,7 +129,7 @@ ax.grid()
 
 plt.legend(loc='upper left')
 
-plt.savefig(images_dir + "orbits_plot_with_peaks.svg")
+# plt.savefig(images_dir + "orbits_plot_with_peaks.svg")
 
 # Save peak data
 peaks_data.write(data_dir + "peaks_data.csv", overwrite=True)
@@ -143,12 +138,20 @@ print("Plot finished!")
 
 # 2D Planar Plots
 
-plane_plot = PlanarplotPanel(["2012-03-15", "2012-03-18"], plane="X-Y", crossings=True)
+times = ["2011-03-30", "2011-04-30"]
+planes = ["X-Y", "X-Z", "Y-Z"]
 
-plane_plot.ax_set_params = {
-        "title":"MESSENGER Trajectory X-Y Plane (MSO)",
-        "aspect": "equal",
-        }
+mpl.rcParams['path.simplify'] = True
+mpl.rcParams['path.simplify_threshold'] = 1.0
 
-plane_plot.plot(show=False)
+for plane in planes:
+    plane_plot_mp = PlanarplotPanel(times, plane=plane, crossings=True, BS=False, alpha=0.05)
+    plane_plot_bs = PlanarplotPanel(times, plane=plane, crossings=True, MP=False, alpha=0.05)
+
+    plane_plot = plane_plot_bs + plane_plot_mp
+
+    fig, ax = plane_plot.plot(show=False)
+    fig.suptitle(f"MESSENGER Trajectory, {times}, {plane} Plane")
+    # plt.savefig(images_dir + f"orbit_{plane}_crossings.svg")
+
 plt.show()
