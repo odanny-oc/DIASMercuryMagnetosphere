@@ -3,21 +3,16 @@ from astropy.table import QTable
 from sunpy.time import TimeRange
 from astropy.time import Time
 
-from hermpy.data import parse_messenger_fips, parse_messenger_mag
-from hermpy.net import ClientMESSENGER
 
 from datetime import timedelta
 import os
-import sys
-
-from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
+from hermpymod.functions.ephemeris_downsampler import parse_crossing_list, parse_periapsis_data
 
 
 home_dir = os.getenv('HOME')
 data_dir = os.path.join(home_dir, ".ephemeris_data/")
-img_dir = "../../plots_and_images/"
 
-peak_data = QTable.read(data_dir + "peaks_data.csv")
+peak_data = parse_periapsis_data()
 
 crossing_data = parse_crossing_list()
 

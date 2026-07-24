@@ -1,28 +1,18 @@
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 import numpy as np
 
-from astropy.table import QTable, vstack, Column
 import astropy.units as u
 from astropy.time import Time
 from astropy.table import QTable, hstack, vstack
 from sunpy.time import TimeRange
 
 from hermpy.plotting import Panel, TimeseriesPanel
-from hermpy.data import parse_messenger_fips, parse_messenger_mag
-from hermpy.net import ClientSPICE, ClientMESSENGER
 from hermpy.utils import Constants as c
-
-import spiceypy as spice
 
 import datetime as dt
 
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
+from hermpymod.functions.encounters import parse_encounters_list
 
 
 def plot_crossings(t_start, t_end, ax):
@@ -44,7 +34,33 @@ def plot_crossings(t_start, t_end, ax):
         ax = [ax]
 
 
-    for ax in ax:
+    for i in range(len(ax)):
         for mask in mask_dict:
-            ax.vlines(crossing_list["UTC"][mask_dict[mask]["mask"]].to_datetime(), ymin=0, ymax=1, transform=ax.get_xaxis_transform(), color= mask_dict[mask]["color"], label = mask, ls='--')
+            if len(ax) == 1:
+                ax[i].vlines(crossing_list["UTC"][mask_dict[mask]["mask"]].to_datetime(), ymin=0, ymax=1, transform=ax[i].get_xaxis_transform(), color= mask_dict[mask]["color"], label = mask, ls='--')
+            else:
+                ax[i].vlines(crossing_list["UTC"][mask_dict[mask]["mask"]].to_datetime(), ymin=0, ymax=1, transform=ax[i].get_xaxis_transform(), color= mask_dict[mask]["color"], label = mask if i == 1 else None, ls='--')
 
+
+def plot_encounters(t_start, t_end, ax):
+    encounter_list = parse_encounters_list()
+    start_times = Time(encounter_list["Time Start"]).to_datetime()
+    end_times = Time(encounter_list["Time End"]).to_datetime()
+    start_mask = (start_times >= t_start) & (start_times <= t_end)
+    end_mask = (end_times >= t_start) & (end_times <= t_end)
+    mask = start_mask | end_mask
+    encounter_list = encounter_list[mask]
+
+    if not isinstance(ax, np.ndarray):
+        ax = [ax]
+
+
+    for i in range(len(ax)):
+        if len(ax) == 1:
+            for idx, encounter in enumerate(encounter_list):
+                encounter_times = [Time(encounter["Time Start"]).to_datetime(), Time(encounter["Time End"]).to_datetime()]
+                ax[i].axvspan(encounter_times[0], encounter_times[-1], alpha=0.7, color='orange', label=f"Encounter \nNumber of encounters {len(encounter_list)}")
+        else:
+            for idx, encounter in enumerate(encounter_list):
+                encounter_times = [Time(encounter["Time Start"]).to_datetime(), Time(encounter["Time End"]).to_datetime()]
+                ax[i].axvspan(encounter_times[0], encounter_times[-1], alpha=0.7, color='orange', label=f"Encounter \nNumber of encounters {len(encounter_list)}" if idx ==0 and i==1 else None)
