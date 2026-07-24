@@ -88,7 +88,6 @@ sun_encounter_data = QTable.read(data_dir + 'sun_2023_crossing.csv')
 
 hollman_encounter_data = parse_encounters_list(force_rebuild=True)
 
-
 phil_dt_bs, phil_dt_mp = dt_encounters(phil_encounter_data)
 
 sun_dt_bs, sun_dt_mp = dt_encounters(sun_encounter_data)

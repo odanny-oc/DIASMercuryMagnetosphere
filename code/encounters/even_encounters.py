@@ -69,7 +69,6 @@ for i in mag_encounters:
     ax_mag[0].axvspan(encounter_time[0], encounter_time[-1], alpha=0.5, color='orange', label=f'Encounter number {i0}')
     ax_mag[1].axvspan(encounter_time[0], encounter_time[-1], alpha=0.5, color='orange', label=f'Encounter number {i0}')
 
-
     plot_all_ephemeris([t_start, t_end], crossings=crossing_data, encounters=encounters_list)
 
 plt.show()

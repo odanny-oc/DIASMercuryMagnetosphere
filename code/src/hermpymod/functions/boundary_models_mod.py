@@ -57,6 +57,7 @@ def plot_magnetospheric_boundaries(
 
     magnetopause_x_coords = rho_mp_boundary * np.cos(phi)
     magnetopause_y_coords = rho_mp_boundary * np.sin(phi)
+
     if frame == "MSM":
         magnetopause_z_coords = magnetopause_y_coords
     elif frame == "MSO":
@@ -184,23 +185,3 @@ def plot_magnetospheric_boundaries(
                 label=bowshock_plot_label,
                 zorder=zorder,
             )
-
-    else:
-        ax.plot(
-            magnetopause_plot_x_coords,
-            magnetopause_plot_y_coords,
-            ls="--",
-            lw=lw,
-            color=color,
-            label=magnetopause_plot_label,
-            zorder=zorder,
-        )
-        ax.plot(
-            bowshock_plot_x_coords,
-            bowshock_plot_y_coords,
-            ls="-",
-            lw=lw,
-            color=color,
-            label=bowshock_plot_label,
-            zorder=zorder,
-        )

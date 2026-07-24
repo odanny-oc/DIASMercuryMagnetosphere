@@ -60,6 +60,12 @@ home_dir = os.getenv('HOME')
 data_dir = os.path.join(home_dir, '.ephemeris_data/')
 os.makedirs(data_dir, exist_ok = True)
 
+crossing_list = parse_crossing_list()
+crossing_times = Time(crossing_list["UTC"]).to_datetime()
+
+encounters_data = parse_encounters_list()
+encounter_times = Time(encounters_data["Time Start"]).to_datetime()
+
 
 """
 Class to plot downsampled positional data, for 2D planar plots
@@ -110,13 +116,13 @@ class PlanarplotPanel(Panel):
             Y = [i for i in self.poscol if "Y" in i][0]
             Z = [i for i in self.poscol if "Z" in i][0]
 
+
         plane_dict = {
                 "X-Y": [X, Y],
                 "Y-Z": [Y, Z],
                 "X-Z": [X, Z],
                 "All": [X, Y ,Z],
                 }
-
         self._labels = plane_dict[self.plane]
         self._all_labels = [X,Y,Z]
 
@@ -166,7 +172,6 @@ class PlanarplotPanel(Panel):
             t = np.linspace(0, 2* np.pi, 100)
         ax.plot(R*np.cos(t), R*np.sin(t), lw = 2, color='k', label='Mercury')
         ax.set_aspect('equal')
-
 
 
     def plot_encounters(self, ax, labels):

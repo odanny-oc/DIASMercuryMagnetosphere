@@ -23,7 +23,6 @@ def total_mag_field(data):
     return total_data, mag_field_data
 
 
-
 def mag_data_plotter(time, crossings=True, encounters=True):
 
     if not isinstance(time[0], str):

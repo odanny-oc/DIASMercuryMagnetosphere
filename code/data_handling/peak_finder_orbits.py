@@ -28,6 +28,13 @@ mpl.use("QtAgg")
 
 plt.style.use(images_dir + "presentation.mplstyle")
 
+ephemeris_data = parse_spice_downsampled()
+
+crossing_list = parse_crossing_list()
+
+crossing_times = Time(crossing_list["UTC"]).to_datetime()
+
+>>>>>>> f5746e76ab361bf6384b3c7271e83831093566f7
 
 def abs_r(mag_data):
     return np.sqrt(mag_data[0] ** 2 + mag_data[1] ** 2 + mag_data[2] ** 2)

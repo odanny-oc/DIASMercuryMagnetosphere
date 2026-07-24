@@ -62,6 +62,7 @@ def parse_encounters_list(force_rebuild=False):
         except FileNotFoundError:
             pass
 
+
     # Get crossings if not already downloaded
     try:
         encounters_data = QTable.read(encounters_list_dir)
@@ -79,7 +80,6 @@ def parse_encounters_list(force_rebuild=False):
             encounter_type = encounter["Label"][0][:2]
             direction = encounter["Trajectory Direction"][0][0].upper()
             label.append(encounter_type + direction)
-
         encounter_duration = [(Time(time_end[i]).to_datetime() - Time(time_start[i]).to_datetime()).total_seconds()/3600 for i in range(len(time_start))]
 
         encounters_data = QTable({

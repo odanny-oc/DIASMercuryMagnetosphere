@@ -22,6 +22,29 @@ crossing_data = parse_crossing_list()
 
 orbit_data = orbit_data(crossing_data)
 
+encounters_per_orbit = [encounter_finder(orbit) for orbit in orbit_data]
+
+encounters_per_orbit = np.array(encounters_per_orbit, dtype=object)
+
+num_encounters_per_orbit = [len(encounter_orbit) for encounter_orbit in encounters_per_orbit]
+
+print(sum(num_encounters_per_orbit))
+
+bins = np.arange(0,7, 1)
+encounters_per_orbit_hist = HistogramPanel(num_encounters_per_orbit, bins)
+encounters_per_orbit_hist.ax_set_params = {
+        "title": f"Number of encounters per orbit",
+        "xlabel": "Number of encounters",
+        "ylabel": "Number of orbits",
+        "yscale": "log"
+        }
+encounters_per_orbit_hist.plot(show=False)
+
+plt.savefig(img_dir + "encounters_per_orbit.svg")
+
+encounters_data = encounter_finder(crossing_data)
+>>>>>>> f5746e76ab361bf6384b3c7271e83831093566f7
+
 peaks_data = parse_periapsis_data()
 peak_times = Time(peaks_data["UTC"]).to_datetime()
 

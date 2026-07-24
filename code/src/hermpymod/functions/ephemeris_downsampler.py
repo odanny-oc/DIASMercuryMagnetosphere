@@ -12,7 +12,6 @@ import subprocess
 
 Zd = c.DIPOLE_OFFSET.to("Mercury Radii")
 
-
 home_dir = os.getenv("HOME")
 data_dir = os.path.join(home_dir, ".ephemeris_data/")
 os.makedirs(data_dir, exist_ok = True)
