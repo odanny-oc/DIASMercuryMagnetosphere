@@ -35,7 +35,7 @@ plt.style.use(img_dir + "presentation.mplstyle")
 
 crossing_data = QTable.read(data_dir + "hollman_2025_crossing_list.ecsv")
 
-peak_data = QTable.read(data_dir + "peaks_data.csv")
+peaks_data = parse_periapsis_list()
 peak_times = Time(peak_data["UTC"]).to_datetime()
 
 crossing_numbers = []

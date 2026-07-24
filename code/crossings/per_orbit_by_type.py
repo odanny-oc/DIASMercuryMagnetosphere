@@ -18,7 +18,6 @@ import datetime as dt
 import os
 
 from hermpymod.classes.panels import HistogramPanel, PlanarplotPanel
-from hermpymod.functions.ephemeris_downsampler import parse_spice_downsampled
 from hermpymod.functions.data_per_orbit import orbit_data
 
 
@@ -30,7 +29,7 @@ mpl.use('QtAgg')
 
 plt.style.use(img_dir + "presentation.mplstyle")
 
-peak_data = QTable.read(data_dir + "peaks_data.csv")
+peaks_data = parse_periapsis_list()
 
 peak_times = Time(peak_data["UTC"]).to_datetime()
 

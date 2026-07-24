@@ -13,11 +13,8 @@ import datetime as dt
 from datetime import timedelta
 
 import os
-import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from hermpymod.functions.ephemeris_downsampler import build_ephemeris_table
+from hermpymod.functions.ephemeris_downsampler import build_ephemeris_table, parse_crossing_list
 
 import matplotlib
 
@@ -42,4 +39,4 @@ spice_client.KERNEL_LOCATIONS.update(
 )
 
 with spice_client.KernelPool():
-    build_ephemeris_table(force_rebuild=True)
+    build_ephemeris_table(force_rebuild=True, frame="All")

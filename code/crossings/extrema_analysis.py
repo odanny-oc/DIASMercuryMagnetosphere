@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.gridspec import GridSpec
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -15,9 +16,11 @@ import datetime as dt
 import os
 
 from hermpymod.classes.panels import HistogramPanel, PlanarplotPanel
-from hermpymod.functions.ephemeris_downsampler import parse_spice_downsampled
 from hermpymod.functions.mag_data_plotter import mag_data_plotter
 from hermpymod.functions.data_per_orbit import orbit_data
+from hermpymod.functions.plot_all import plot_all_ephemeris
+from hermpymod.functions.ephemeris_downsampler import parse_crossing_list, parse_periapsis_data
+from hermpymod.functions.encounters import parse_encounters_list
 
 home_dir = os.getenv('HOME')
 data_dir = os.path.join(home_dir, ".ephemeris_data/")
@@ -27,7 +30,7 @@ mpl.use('QtAgg')
 
 plt.style.use(img_dir + "presentation.mplstyle")
 
-peak_data = QTable.read(data_dir + "peaks_data.csv")
+peak_data = parse_periapsis_data()
 
 peak_times = Time(peak_data["UTC"]).to_datetime()
 
@@ -36,7 +39,9 @@ orbit_times = [(peak_times[i], peak_times[i+1]) for i in range(11, len(peak_data
 
 print("Number of peaks found", len(peak_times))
 
-crossing_data = QTable.read(data_dir + "hollman_2025_crossing_list.ecsv")
+crossing_data = parse_crossing_list()
+
+encounters_data = parse_encounters_list()
 
 crossing_times =Time(crossing_data["UTC"]).to_datetime()
 
@@ -52,6 +57,7 @@ total_crossing_numbers = [len(i) for i in crossing_orbit_list]
 
 histograms = []
 
+
 for label, mask, color in types_config:
     time_type = crossing_times[mask]
 
@@ -64,18 +70,24 @@ for label, mask, color in types_config:
     max_list_indices = [max_index, second_max_index]
 
     times = [(crossing_orbit_times[max_index][0], crossing_orbit_times[max_index][-1]), (crossing_orbit_times[second_max_index][0], crossing_orbit_times[second_max_index][-1])]
+
+
     for i in range(len(times)):
-        planar_plot_xy = PlanarplotPanel(times[i], "X-Y", crossings=True)
-        planar_plot_xz = PlanarplotPanel(times[i], "X-Z", crossings=True)
-        plots = planar_plot_xy + planar_plot_xz
-        plots.ax_set_param = {
-                "title": f"{times[i]} Number of crossings {max_list[i]}" 
-                }
-        plots.plot(show=False)
+
+        fig, ax = plot_all_ephemeris(times[i], crossings=crossing_data, encounters=encounters_data)
+
+        for num in range(3):
+            ax[num].set_xlim(-5,5)
+            ax[num].set_ylim(-6,4)
+
+        fig.suptitle(f"{times[i][0].isoformat()}-{times[i][-1].isoformat()} Number of crossings {max_list[i]}", fontsize=20)
+
+        plt.savefig(img_dir + f"orbit_with_{max_list[i]}_crossings.svg")
 
         tw = dt.timedelta(hours=3)
         mag_times = (orbit_times[max_list_indices[i]][0] - tw, orbit_times[max_list_indices[i]][-1] + tw)
         fig, ax = mag_data_plotter(mag_times)
+
 
         for ax in ax:
             ax.axvspan(orbit_times[max_list_indices[i]][0], orbit_times[max_list_indices[i]][-1], alpha=0.3, color= "green", label=f"Orbit {max_list_indices[i]}\n Number of crossings {max_list[i]}")

@@ -22,7 +22,7 @@ img_dir = "../../plots_and_images/"
 
 plt.style.use(img_dir + "presentation.mplstyle")
 
-peak_data = QTable.read(data_dir + "peaks_data.csv")
+peaks_data = parse_periapsis_list()
 
 peak_times = Time(peak_data["UTC"]).to_datetime()
 
@@ -59,12 +59,13 @@ crossings_per_orbit_hist.ax_set_params = {
         "title": f"Number of magnetic field boundary crossings per orbit, ({Time(peak_times[0]).iso[:11]} - {Time(peak_times[-1]).iso[:11]})",
         "xlabel": "Number of crossings",
         "ylabel":"Number of orbits",
-        # "yscale":"log",
+        "yscale":"log",
 }
 
 print('Plotted Histogram')
 
 
 crossings_per_orbit_hist.plot(show=False)
-plt.savefig(img_dir + "crossings_per_orbit_hollman.svg")
+# plt.savefig(img_dir + "crossings_per_orbit_hollman.svg")
+plt.savefig(img_dir + "crossings_per_orbit_hollman_log.svg")
 plt.show()

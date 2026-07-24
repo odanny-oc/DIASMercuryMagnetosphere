@@ -1,25 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy.table import QTable, vstack
+from astropy.table import QTable
 from sunpy.time import TimeRange
 from astropy.time import Time
 
-from hermpy.data import parse_messenger_fips, parse_messenger_mag
-from hermpy.net import ClientMESSENGER
-from hermpy.plotting import MultiPanel, SpectrogramPanel, TimeseriesPanel
-
 import matplotlib.pyplot as plt
-import datetime as dt
 from scipy.signal import find_peaks
 import spiceypy as spice
+import datetime as dt
 
-import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from hermpymod.classes.panels import PlanarplotPanel
-from hermpymod.functions.ephemeris_downsampler import parse_crossing_list, parse_spice_downsampled
+from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
+from hermpymod.functions.downsampled_positional_data import parse_spice_downsampled
 
 from hermpy.net import ClientSPICE
 from hermpy.utils import Constants as c
@@ -34,16 +28,16 @@ mpl.use("QtAgg")
 
 plt.style.use(images_dir + "presentation.mplstyle")
 
-ephemeris_data = parse_spice_downsampled()
-
-crossing_list = QTable.read(data_dir + "hollman_2025_crossing_list.ecsv")
-
-crossing_times = Time(crossing_list["UTC"]).to_datetime()
-
 
 def abs_r(mag_data):
     return np.sqrt(mag_data[0] ** 2 + mag_data[1] ** 2 + mag_data[2] ** 2)
 
+
+ephemeris_data = parse_spice_downsampled()
+
+crossing_list = parse_crossing_list(force_rebuild=True)
+
+crossing_times = Time(crossing_list["UTC"]).to_datetime()
 
 fig, ax = plt.subplots()
 
@@ -51,49 +45,103 @@ fig, ax = plt.subplots()
 time = ephemeris_data["UTC"].to_datetime()
 distance = np.array(ephemeris_data["|R|"])
 
-ax.scatter(time, distance, s=0.1, color="C0", rasterized=True)
+ax.plot(time, distance, color="C0",lw =0.4, zorder=1)
 
 # Find periapsis to define orbits
-peaks = find_peaks(-distance, plateau_size=1,distance=100, height=-1.5)[0]
+periapsides = find_peaks(-distance, plateau_size=1,distance=100, height=-1.5)[0]
+apoapsides = find_peaks(distance, plateau_size=1,distance=100, height=-1.5)[0]
 
 # Include last partial orbit
-peaks = np.append(peaks, -1)
+periapsides = np.append(periapsides, -1)
 # peaks = np.insert(peaks, 0 , 0)
 
-print("Number of peaks", len(peaks))
+print("Number of periapsides", len(periapsides))
+print("Number of apoapsides", len(apoapsides))
 
-delta_t_between_orbits = [0]
+delta_t_between_periapsides = [0]
 
-peak_times = Time(time[peaks]).to_datetime()
+periapsides_times = Time(time[periapsides]).to_datetime()
+print(periapsides_times[0])
 
-orbit_number = [0] 
+periapsis_orbit_number = [0] 
+
+sig_figs = 4
+
+for i in range(len(periapsides_times) - 1):
+    time_start =  periapsides_times[i]
+    time_end = periapsides_times[i + 1]
+    periapsis_orbit_number.append(i+1)
+    orbit_time = round((time_end - time_start).total_seconds()/3600, sig_figs)
+    delta_t_between_periapsides.append(orbit_time)
+
+delta_t_between_apoapsides = [0]
+
+apoapsides_times = Time(time[apoapsides]).to_datetime()
+
+apoapsis_orbit_number = [0] 
 
 
-for i in range(len(peak_times) - 1):
-    time_start =  peak_times[i]
-    time_end = peak_times[i + 1]
-    orbit_number.append(i+1)
-    orbit_time = time_end - time_start 
-    delta_t_between_orbits.append(orbit_time)
+for i in range(len(apoapsides_times) - 1):
+    time_start =  apoapsides_times[i]
+    time_end = apoapsides_times[i + 1]
+    apoapsis_orbit_number.append(i+1)
+    orbit_time = round((time_end - time_start).total_seconds()/3600, sig_figs)
+    delta_t_between_apoapsides.append(orbit_time)
 
 
-peaks_data = QTable(
+def round_datetime_to_second(t):
+    return t.replace(microsecond=0) + dt.timedelta(seconds=round(t.microsecond / 1e6))
+
+
+periapsis_utc_rounded = [round_datetime_to_second(t) for t in time[periapsides]]
+apoapsis_utc_rounded = [round_datetime_to_second(t) for t in time[apoapsides]]
+
+
+periapsis_data = QTable(
     {
-        "UTC": time[peaks],
-        "|R|": distance[peaks],
-        "delta t": delta_t_between_orbits,
-        "Orbit Number": orbit_number,
+        "UTC": periapsis_utc_rounded,
+        "X MSO": round(ephemeris_data["X MSO"][periapsides], sig_figs),
+        "Y MSO": round(ephemeris_data["Y MSO"][periapsides], sig_figs),
+        "Z MSO": round(ephemeris_data["Z MSO"][periapsides], sig_figs),
+        "|R|": np.round(distance[periapsides], sig_figs),
+        "Orbit Length": delta_t_between_periapsides,
+        "Orbit Number": periapsis_orbit_number,
     }
 )
 
+
+apoapsis_data = QTable(
+    {
+        "UTC": apoapsis_utc_rounded,
+        "X MSO": round(ephemeris_data["X MSO"][apoapsides], sig_figs),
+        "Y MSO": round(ephemeris_data["Y MSO"][apoapsides], sig_figs),
+        "Z MSO": round(ephemeris_data["Z MSO"][apoapsides], sig_figs),
+        "|R|": np.round(distance[apoapsides], sig_figs),
+        "Orbit Length": delta_t_between_apoapsides,
+        "Orbit Number": apoapsis_orbit_number,
+    }
+)
+
+
 # Plot periapsis
 ax.scatter(
-    time[peaks],
-    distance[peaks],
+    time[periapsides],
+    distance[periapsides],
     s=50,
     color="r",
     marker="x",
-    label="Peak (Orbit start/end)",
+    label="Periapsis (Orbit start/end)",
+)
+
+
+# Plot periapsis
+ax.scatter(
+    time[apoapsides],
+    distance[apoapsides],
+    s=50,
+    color="green",
+    marker="x",
+    label="Apoapsis (Orbit start/end)",
 )
 
 crossing_positions = crossing_list["X MSO", "Y MSO", "Z MSO"]
@@ -126,7 +174,7 @@ for label in crossings_dict.keys():
         label=label,
     )
 
-ax.set_title(f"MESSENGER Distance from Mercury ({time[peaks][0]} - {time[peaks][-1]})")
+ax.set_title(f"MESSENGER Distance from Mercury ({time[periapsides][0]} - {time[periapsides][-1]})")
 ax.set_ylabel(r"Distance from Mercury $\|R\|$ (Mercury Radii $R_M$)")
 ax.set_xlabel(f"Time MM:DD:HH (UTC)")
 # ax.set_xlim(dt.datetime(2011,3,31), dt.datetime(2011,4,3))
@@ -134,21 +182,30 @@ ax.grid()
 
 plt.legend(loc='upper left')
 
-plt.savefig(images_dir + "orbits_plot_with_peaks.svg")
+# plt.savefig(images_dir + "orbits_plot_with_peaks.svg")
 
 # Save peak data
-peaks_data.write(data_dir + "peaks_data.csv", overwrite=True)
+periapsis_data.write(data_dir + "periapsis_data.csv", overwrite=True)
+apoapsis_data.write(data_dir + "apoapsis_data.csv", overwrite=True)
 
 print("Plot finished!")
 
 # 2D Planar Plots
 
-plane_plot = PlanarplotPanel(["2012-03-15", "2012-03-18"], plane="X-Y", crossings=True)
+times = ["2011-03-30", "2011-04-30"]
+planes = ["X-Y", "X-Z", "Y-Z"]
 
-plane_plot.ax_set_params = {
-        "title":"MESSENGER Trajectory X-Y Plane (MSO)",
-        "aspect": "equal",
-        }
+mpl.rcParams['path.simplify'] = True
+mpl.rcParams['path.simplify_threshold'] = 1.0
 
-plane_plot.plot(show=False)
+for plane in planes:
+    plane_plot_mp = PlanarplotPanel(times, plane=plane, crossings=crossing_list, BS=False, alpha=0.05)
+    plane_plot_bs = PlanarplotPanel(times, plane=plane, crossings=crossing_list, MP=False, alpha=0.05)
+
+    plane_plot = plane_plot_bs + plane_plot_mp
+
+    fig, ax = plane_plot.plot(show=False)
+    fig.suptitle(f"MESSENGER Trajectory, {times}, {plane} Plane")
+    # plt.savefig(images_dir + f"orbit_{plane}_crossings.svg")
+
 plt.show()
