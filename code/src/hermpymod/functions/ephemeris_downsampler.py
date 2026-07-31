@@ -12,6 +12,7 @@ import subprocess
 
 Zd = c.DIPOLE_OFFSET.to("Mercury Radii")
 
+
 home_dir = os.getenv("HOME")
 data_dir = os.path.join(home_dir, ".ephemeris_data/")
 os.makedirs(data_dir, exist_ok = True)
@@ -110,7 +111,7 @@ Downloads Hollman 2025 crossing list and returns it
 
 def parse_crossing_list(force_rebuild=False):
 
-    crossing_list_dir = os.path.join(data_dir, 'hollman_2025_crossing_list.ecsv')
+    crossing_list_dir = os.path.join(data_dir, 'hollman_2025_crossing_list.csv')
 
     save_path = os.path.join(data_dir, "hollman_2025_crossings.csv")
 
@@ -140,7 +141,7 @@ def parse_crossing_list(force_rebuild=False):
             position_table = parse_spice(time_range)
 
         crossing_table = hstack([position_table, crossing_list["Label"], crossing_list['Trajectory Direction']])
-        crossing_table.write(os.path.join(data_dir, "hollman_2025_crossing_list.ecsv"))
+        crossing_table.write(crossing_list_dir)
 
         crossing_list = crossing_table
 
@@ -155,25 +156,31 @@ Download SPICE data full
 def parse_spice(time_array, units="Mercury Radii", frame="MSO"):
 
         time = Time(time_array).to_datetime()
-        # Handle execptions
-        if time[0] < mission_start and time[-1] > mission_end:
-            raise ValueError(f"Invalid time range given (must lie within {Time(mission_start)} and {Time(mission_end)}).")
 
-        # elif time[0] < mission_start:
-        #     raise ValueError(f"Start time before mission start ({Time(mission_start)})")
+        if isinstance(time, np.ndarray):
+            # Handle execptions
+            if time[0] < mission_start and time[-1] > mission_end:
+                raise ValueError(f"Invalid time range given (must lie within {Time(mission_start)} and {Time(mission_end)}).")
 
-        elif time[-1] > mission_end:
-            raise ValueError(f"End time after mission end ({Time(mission_end)})")
+            # elif time[0] < mission_start:
+            #     raise ValueError(f"Start time before mission start ({Time(mission_start)})")
+
+            elif time[-1] > mission_end:
+                raise ValueError(f"End time after mission end ({Time(mission_end)})")
+
+        else:
+            time=[time]
         
+
         # Call data
-        et = spice.datetime2et(time_array)
+        et = spice.datetime2et(time)
         position, _ = spice.spkpos("MESSENGER", et, "MSGR_MSO", "NONE", "Mercury")
 
         print('Loaded data')
 
-        X_MSO = [pos[0] for pos in position]
-        Y_MSO = [pos[1] for pos in position]
-        Z_MSO = [pos[2] for pos in position]
+        X_MSO = np.array([pos[0] for pos in position])
+        Y_MSO = np.array([pos[1] for pos in position])
+        Z_MSO = np.array([pos[2] for pos in position])
 
         distance_to_mercury = [abs_r(position[j]) for j in range(len(position))]
 
@@ -189,13 +196,13 @@ def parse_spice(time_array, units="Mercury Radii", frame="MSO"):
                 })
 
         elif frame == "MSM":
-            distance_to_mercury = abs_r([X_MSO, Y_MSO, Z_MSO + Zd.to("km")])
+            distance_to_mercury = abs_r([X_MSO, Y_MSO, Z_MSO + Zd.to("km").value])
             table = QTable({
                 "UTC" : Time(time),
                 "|R|" : distance_to_mercury * u.Unit("km"),
                 "X MSM" : X_MSO * u.Unit("km"),
                 "Y MSM" : Y_MSO * u.Unit("km"),
-                "Z MSM" : Z_MSO * u.Unit("km") + Zd.to("km"),
+                "Z MSM" : Z_MSO * u.Unit("km") - Zd.to("km"),
                 })
 
         elif frame == "All":
@@ -207,7 +214,7 @@ def parse_spice(time_array, units="Mercury Radii", frame="MSO"):
                 "Z MSO" : Z_MSO * u.Unit("km"),
                 "X MSM" : X_MSO * u.Unit("km"),
                 "Y MSM" : Y_MSO * u.Unit("km"),
-                "Z MSM" : Z_MSO * u.Unit("km") + Zd.to("km"),
+                "Z MSM" : Z_MSO * u.Unit("km") - Zd.to("km"),
                 })
         else:
             raise ValueError("Invalid frame, not one of 'MSO', 'MSM', or 'All'")
@@ -226,7 +233,7 @@ Obtains downsampled positional data from SPICE for entire MESSENGER mission and 
 """
 
 
-def build_ephemeris_table(force_rebuild=False, frame="MSO"):
+def build_ephemeris_table(force_rebuild=False, frame="All"):
 
     _ = parse_crossing_list()
 

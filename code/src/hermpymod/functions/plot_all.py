@@ -7,7 +7,7 @@ import warnings
 from hermpymod.classes.panels import PlanarplotPanel
 
 
-def plot_all_ephemeris(times, units="Mercury Radii", crossings=None ,encounters=None, plot=False, ax=None, color="C0", scatter=True, mercury=True, label=None, add_legend=True, frame="MSO"):
+def plot_all_ephemeris(times, units="Mercury Radii", crossings=None ,encounters=None, plot=False, ax=None, color="C0", scatter=True, mercury=True, label=None, add_legend=True, frame="MSO", downsampled=True, resolution=None):
 
     if ax == None:
         ax_true = True 
@@ -24,7 +24,7 @@ def plot_all_ephemeris(times, units="Mercury Radii", crossings=None ,encounters=
     else:
         ax_true = False
     
-    plane_plot = PlanarplotPanel(times, plane='All', units=units, crossings=crossings, encounters=encounters, color=color, scatter=scatter, mercury=mercury, label=label, frame=frame)
+    plane_plot = PlanarplotPanel(times, plane='All', units=units, crossings=crossings, encounters=encounters, color=color, scatter=scatter, mercury=mercury, label=label, frame=frame, downsampled=downsampled, resolution=resolution)
 
     plane_plot._plot_on(ax)
 

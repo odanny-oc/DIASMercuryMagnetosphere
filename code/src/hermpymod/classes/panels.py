@@ -6,12 +6,12 @@ from hermpy.plotting import Panel
 from hermpy.net import ClientSPICE
 from hermpy.utils import Constants as c
 from astropy.time import Time
-from astropy.table import QTable, vstack
+from astropy.table import QTable, vstack, hstack, Table
 from typing import Literal, get_args
 import os
 import warnings 
 
-from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
+from hermpymod.functions.ephemeris_downsampler import parse_crossing_list, parse_spice, time_array, abs_r
 from hermpymod.functions.downsampled_positional_data import parse_spice_downsampled
 from hermpymod.functions.boundary_models_mod import plot_magnetospheric_boundaries
 from hermpymod.functions.encounters import parse_encounters_list
@@ -19,6 +19,9 @@ from hermpymod.functions.encounters import parse_encounters_list
 
 # Define custom Mercury radii unit
 mercury_rad = c.MERCURY_RADIUS.to("km")
+
+Zd = c.DIPOLE_OFFSET.to("km")
+
 
 spice_client = ClientSPICE()
 
@@ -36,6 +39,7 @@ spice_client.KERNEL_LOCATIONS.update(
         },
     }
 )
+
 
 def polar_grid(ax):
     # Concentric circles (constant-r gridlines)
@@ -60,19 +64,13 @@ home_dir = os.getenv('HOME')
 data_dir = os.path.join(home_dir, '.ephemeris_data/')
 os.makedirs(data_dir, exist_ok = True)
 
-crossing_list = parse_crossing_list()
-crossing_times = Time(crossing_list["UTC"]).to_datetime()
-
-encounters_data = parse_encounters_list()
-encounter_times = Time(encounters_data["Time Start"]).to_datetime()
-
 
 """
 Class to plot downsampled positional data, for 2D planar plots
 """
 
 class PlanarplotPanel(Panel):
-    def __init__(self, time=[str, str], plane: Literal["X-Y", "X-Z", "Y-Z", "All"] = "X-Y", cylindrical=False, units="Mercury Radii", mercury=True, crossings=None, MP=True, BS=True, encounters=None, add_legend=True, frame = "MSO", alpha=1.0, color='C0', scatter=True, label=None, grid=False):
+    def __init__(self, time=[str, str], plane: Literal["X-Y", "X-Z", "Y-Z", "All"] = "X-Y", cylindrical=False, units="Mercury Radii", mercury=True, crossings=None, MP=True, BS=True, encounters=None, add_legend=True, frame = "MSO", alpha=1.0, color='C0', scatter=True, label=None, grid=False, downsampled=True, resolution=None):
         # Initialize the parent Panel class
         super().__init__() 
         
@@ -83,7 +81,7 @@ class PlanarplotPanel(Panel):
         self._mercury = mercury
         self._frame = frame
         self._grid = grid
-        self._crossings = crossings 
+        self._crossings = crossings
         self._encounters = encounters
         self._legend = add_legend
         self._cylindrical = cylindrical
@@ -94,27 +92,26 @@ class PlanarplotPanel(Panel):
         self._scatter = scatter
         self._label = label
 
-        orbit_data = parse_spice_downsampled(time_range=time)
+        if downsampled:
+            orbit_data = parse_spice_downsampled(time_range=time)
+
+        else:
+
+            if resolution==None:
+                raise ValueError("'resolution' not defined, select resolution of sampling in seconds.")
+            else:
+                time_range = time_array(Time(time[0]).to_datetime(), Time(time[-1]).to_datetime(), resolution)
+
+            orbit_data = parse_spice(time_range, units=self.units, frame=self._frame)
 
         self.orbit_data = orbit_data
         self.time_range = self.orbit_data["UTC"].to_datetime()
         self.poscol = [i for i in self.orbit_data.keys() if "X" in i or "Y" in i or "Z" in i]
 
         # Dictionary to plot based on given plane
-        if self._frame == "MSO":
-            X = [i for i in self.poscol if "X MSO" in i][0]
-            Y = [i for i in self.poscol if "Y MSO" in i][0]
-            Z = [i for i in self.poscol if "Z MSO" in i][0]
-
-        elif self._frame == "MSM":
-            X = [i for i in self.poscol if "X MSM" in i][0]
-            Y = [i for i in self.poscol if "Y MSM" in i][0]
-            Z = [i for i in self.poscol if "Z MSM" in i][0]
-
-        else:
-            X = [i for i in self.poscol if "X" in i][0]
-            Y = [i for i in self.poscol if "Y" in i][0]
-            Z = [i for i in self.poscol if "Z" in i][0]
+        X = [i for i in self.poscol if "X" in i][0]
+        Y = [i for i in self.poscol if "Y" in i][0]
+        Z = [i for i in self.poscol if "Z" in i][0]
 
 
         plane_dict = {
@@ -123,6 +120,7 @@ class PlanarplotPanel(Panel):
                 "X-Z": [X, Z],
                 "All": [X, Y ,Z],
                 }
+
         self._labels = plane_dict[self.plane]
         self._all_labels = [X,Y,Z]
 
@@ -163,15 +161,38 @@ class PlanarplotPanel(Panel):
                 raise ValueError("plane must be passed as a string in alphebetical order (X-Y, Y-Z or X-Z)")
 
 
-    def plot_mercury(self, ax):
+    def plot_mercury(self, ax, label):
         # X^2 + Y^2 + Z^2 = 1 => X^2 + rho^2 = 1
         R = mercury_rad.to(self.units)
-        if self._cylindrical:
-            t = np.linspace(0, np.pi, 100)
-        else:
-            t = np.linspace(0, 2* np.pi, 100)
-        ax.plot(R*np.cos(t), R*np.sin(t), lw = 2, color='k', label='Mercury')
-        ax.set_aspect('equal')
+        t = np.linspace(0, 2* np.pi, 100)
+        t2 = np.linspace(0, np.pi, 100)
+
+        if self._frame == "MSO":
+            if self._cylindrical:
+                y = abs(R*np.sin(t))
+            else:
+                y = R*np.sin(t)
+
+            ax.plot(R*np.cos(t), y, lw = 2, color='k', label='Mercury', zorder=1)
+            ax.set_aspect('equal')
+
+        elif self._frame == "MSM":
+            if self._cylindrical:
+                y = abs(R*np.sin(t))
+                ax.plot(R*np.cos(t), y + Zd.to(self.units), lw = 2, color='k', label='Mercury', zorder=1)
+
+            elif "Z" in label[-1]:
+                y = R*np.sin(t) + Zd.to(self.units)
+
+            else:
+                y = R*np.sin(t)
+
+            if "Z" in label[-1]:
+                y = R*np.sin(t) + Zd.to(self.units)
+
+            ax.plot(R*np.cos(t), y, lw = 2, color='k', label='Mercury', zorder=1)
+            ax.set_aspect('equal')
+
 
 
     def plot_encounters(self, ax, labels):
@@ -197,10 +218,10 @@ class PlanarplotPanel(Panel):
             xlab, ylab, zlab = self._all_labels
             encounters_rho = np.sqrt(encounters_positions_full[ylab]**2 + encounters_positions_full[zlab]**2)
 
-            ax.scatter(encounters_positions_full[xlab], encounters_rho, s=0.8, label=f"Encounters: Number of encounters = {len(encounters_positions)}", color="orange", zorder=2.5)
+            ax.scatter(encounters_positions_full[xlab], encounters_rho, s=0.8, label=f"Encounters: Number of encounters = {len(encounters_positions)}", color="orange", zorder=4)
         else:
             xlab, ylab = labels
-            ax.scatter(encounters_positions_full[xlab], encounters_positions_full[ylab], s=0.8, label=f"Encounters: Number of encounters = {len(encounters_positions)}", color="orange", zorder=2.5)
+            ax.scatter(encounters_positions_full[xlab], encounters_positions_full[ylab], s=0.8, label=f"Encounters: Number of encounters = {len(encounters_positions)}", color="orange", zorder=4)
 
 
     def plot_crossings(self, ax, labels):
@@ -236,24 +257,41 @@ class PlanarplotPanel(Panel):
 
 
         if self._frame == "MSM":
-            crossing_positions = crossing_list_panel['|R|', 'X MSM', 'Y MSM', 'Z MSM']
+            try:
+                distance = [abs_r([x,y,z]) for x,y,z in zip(crossing_list_panel["X MSM"], crossing_list_panel["Y MSM"] , crossing_list_panel["Z MSM"] + Zd.to(self.units).value)]
+                crossing_positions = QTable({
+                    "|R|" : distance,
+                    "X MSO" : crossing_list_panel["X MSM"],
+                    "Y MSO" : crossing_list_panel["Y MSM"],
+                    "Z MSO" : crossing_list_panel["Z MSM"]
+                    })
+
+            except KeyError:
+                distance = [abs_r([x,y,z]) for x,y,z in zip(crossing_list_panel["X MSO"], crossing_list_panel["Y MSO"] , crossing_list_panel["Z MSO"] + Zd.to(self.units).value)]
+                
+                crossing_positions = QTable({
+                    "|R|" : distance,
+                    "X MSO" : crossing_list_panel["X MSO"],
+                    "Y MSO" : crossing_list_panel["Y MSO"],
+                    "Z MSO" : crossing_list_panel["Z MSO"] - Zd.to(self.units).value})
+
         elif self._frame == "MSO":
             crossing_positions = crossing_list_panel['|R|', 'X MSO', 'Y MSO', 'Z MSO']
 
-        for col in crossing_positions.keys():
-            crossing_positions[col] = crossing_positions[col].to(self.units)
+        # for col in crossing_positions.keys():
+        #     crossing_positions[col] = crossing_positions[col].to(self.units)
 
         if self._cylindrical:
             xlab, ylab, zlab = self._all_labels
             for mask in mask_dict.keys():
                 rho_crossing = np.sqrt(crossing_positions[ylab][mask_dict[mask]["mask"]]**2 + crossing_positions[zlab][mask_dict[mask]["mask"]]**2)
                 crossing_x = crossing_positions[xlab][mask_dict[mask]["mask"]]
-                ax.scatter(crossing_x, rho_crossing, label=mask, marker='x', s=50, color=mask_dict[mask]["color"])
+                ax.scatter(crossing_x, rho_crossing, label=mask, marker='x', s=50, color=mask_dict[mask]["color"], zorder = 5)
 
         else:
             xlab, ylab = labels
             for mask in mask_dict.keys():
-                ax.scatter(crossing_positions[xlab][mask_dict[mask]["mask"]],crossing_positions[ylab][mask_dict[mask]["mask"]], label=mask, marker='x', s=50, color=mask_dict[mask]["color"])
+                ax.scatter(crossing_positions[xlab][mask_dict[mask]["mask"]],crossing_positions[ylab][mask_dict[mask]["mask"]], label=mask, marker='x', s=50, color=mask_dict[mask]["color"], zorder=5)
 
         if self.units != "Mercury Radii":
             warnings.warn(
@@ -269,7 +307,7 @@ class PlanarplotPanel(Panel):
                 }
         R = mercury_rad.to(self.units).value
 
-        plot_magnetospheric_boundaries(ax, frame=self._frame, plane=plane[self.plane], add_legend=True, cylindrical=self._cylindrical)
+        plot_magnetospheric_boundaries(ax, frame=self._frame, plane=plane[self.plane], add_legend=True, cylindrical=self._cylindrical, zorder=3)
 
         ax.set_xlim(-10*R, 10*R)
         ax.set_ylim(-10*R, 10*R)
@@ -301,7 +339,7 @@ class PlanarplotPanel(Panel):
                     self.plane = plane
                     self.plot_trajectories(axis, label)
                     if self._mercury:
-                        self.plot_mercury(axis)
+                        self.plot_mercury(axis, label)
                     if self._crossings != None:
                         self.plot_crossings(axis, label)
                     if self._encounters != None:
@@ -313,7 +351,7 @@ class PlanarplotPanel(Panel):
             self.plot_trajectories(ax, labels=self._labels)
 
             if self._mercury:
-                self.plot_mercury(ax)
+                self.plot_mercury(ax, labels=self._labels)
             
             if self._encounters != None:
                 self.plot_encounters(ax, labels=self._labels)
