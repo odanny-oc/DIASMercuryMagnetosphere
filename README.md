@@ -1,4 +1,4 @@
-# DIAS Magnetosphere Group Computing Research Internship
+# MESSENGER at Mercury: Tracking orbits and encounters with magnetospheric boundaries
 
 This repository details the progress made on the analysis of the magnetic boundary crossings made by the MESSENGER spacecraft from 2011 to 2015, for the DIAS Computing Research Internship. The goal of this project was to analyse the extrema events of Mercury's boundaries to extract information on the compression of the boundaries despite having no upstream data for large times of the MESSENGER mission.
 
