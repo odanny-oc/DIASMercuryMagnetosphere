@@ -2,6 +2,15 @@ from astropy.table import Table
 import pandas as pd
 import os
 import subprocess
+from pathlib import Path
+
+
+os.chdir(Path(__file__).resolve().parent)
+
+
+home_dir = os.getenv('HOME')
+data_dir = os.path.join(home_dir , '.ephemeris_data/')
+
 
 """
 This file creates the Sun dataset it a more usable format
@@ -61,6 +70,7 @@ def sun_data_parser(data):
 
 home_dir = os.getenv('HOME')
 data_dir = os.path.join(home_dir, '.ephemeris_data/')
+os.makedirs(data_dir, exist_ok = True)
 
 """
 Below downloads the data and combines it into a time ordered CSV
