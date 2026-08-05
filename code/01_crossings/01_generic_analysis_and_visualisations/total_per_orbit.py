@@ -17,7 +17,7 @@ import os
 
 from hermpymod.classes.panels import HistogramPanel
 from hermpymod.functions.data_per_orbit import orbit_data
-from hermpymod.functions.ephemeris_downsampler import parse_periapsis_data
+from hermpymod.functions.ephemeris_downsampler import parse_periapsis_data, parse_crossing_list
 
 mpl.use('QtAgg')
 
@@ -33,7 +33,7 @@ peak_times = Time(peaks_data["UTC"]).to_datetime()
 
 print("Number of periapsides", len(peak_times))
 
-crossing_data = QTable.read(data_dir + "hollman_2025_crossing_list.ecsv")
+crossing_data = parse_crossing_list()
 
 crossing_numbers = []
 

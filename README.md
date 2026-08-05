@@ -66,19 +66,15 @@ This creates 2D histograms superimposed on top of the spatial slices of MESSENGE
 
 
 # Dependinces
-All the dependencies can be installed from the requirements.txt file in the code directory. To properly install the custom packages, cd into the code directory and run 
+All the Python dependencies can be installed from the requirements.txt file in the code directory. To properly install the custom packages, cd into the code directory and run 
 
 ```
 pip install -r requirements.txt
 ```
 
-The major dependencies are
+The non-Python dependencies are
 
 - wget
-- matplotlib
-- numpy
-- hermpy 
-- sunpy
-- astropy
+- pyqt6
 
 The _hermpymod_ package is included in the repo and features modified functions and new plotting panels built from the hermpy package.
