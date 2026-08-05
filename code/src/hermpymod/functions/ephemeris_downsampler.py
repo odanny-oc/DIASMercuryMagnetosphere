@@ -71,7 +71,7 @@ def parse_periapsis_data(force_rebuild=False):
         periapsis_data = QTable.read(save_path)
     except FileNotFoundError:
 
-        url = 'https://zenodo.org/records/21339364/files/periapsis_data.csv?download=1'
+        url = 'https://zenodo.org/records/21393912/files/periapsis_data.csv?download=1'
 
         subprocess.run(["wget", "-O", save_path, url])
 

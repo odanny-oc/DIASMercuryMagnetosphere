@@ -1,43 +1,41 @@
 # MESSENGER at Mercury: Tracking orbits and encounters with magnetospheric boundaries
 
-This repository details the progress made on the analysis of the magnetic boundary crossings made by the MESSENGER spacecraft from 2011 to 2015, for the DIAS Computing Research Internship. The goal of this project was to analyse the extrema events of Mercury's boundaries to extract information on the compression of the boundaries despite having no upstream data for large times of the MESSENGER mission.
-
+This repository details the progress made on the analysis of the magnetospheric boundary crossings made by the MESSENGER spacecraft at Mercury from 2011 to 2015.
 
 ## Data Handling and Preparation Directory
-The directories are ordered by number in order of complexity. That is, the directory labelled one is conceptually the simplest analysis, while higher numbered directories are more complex. The rule of thumb is to run the directories in numerical order, but depending on the user's purposes this is not always necessary. Directories labelled 00, are to indicate that these are not necessary to be run, but in the case of the alternate data sets, this directory needs to be run for analysis between Hollman et al., Sun et al., and Philpott et al. in the encounters directory. 
-
-
-### Alternative Data Sets
-The alternative data sets directory prepares the data from the Sun et al. encounters list (https://zenodo.org/records/18236915) and the Philpott et al. encounters list (https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/1U6FEO) for use in the later directories. It prepares the data to be in the form of 5 columns.
-
-- Time Start
-- Time End
-- Label
-- Encounter duration
-
-where _Time Start_ and _Time End_ are the start and end times of an encounter with a magnetic boundary, _Label_ is the type of boundary and its direction (magnetopause/bow shock in/out, in the form of (MPO, MPI, BSO, BSI), and _Encounter Duration_ is the duration of the encounter (_Time End_ - _Time Start_) in hours.
+The directories are ordered by number in order of complexity. That is, the directory labelled one is conceptually the simplest analysis, while higher numbered directories are more complex. The rule of thumb is to run the directories in numerical order, but depending on the user's purposes this is not always necessary. 
 
 ### Orbit Finder
 *Note* it is unnecessary to run any file in this directory for the analysis of crossings and encounters.
 
 The first objective of the project is to define when an orbit starts and ends. This was done with respect to the _periapsis_. The periapsis and apoapsis are found using the scipy find_peaks function. The data set is constructed by orbit_periapsis_and_apoapsis_finder.py and is saved and downloaded from Zenodo (https://zenodo.org/records/21393912). 
 
-The data is constructed by downsampling the SPICE kernels data (one point per minute) over the entire MESSENGER mission using the hermpy package (https://hermpy.readthedocs.io/en/stable/generated_examples/spice.html). The distance from Mercury is calculated by taking the norm of the vector in _Mercury Solar Orbital_ (MSO) coordinates. The peak and troughs of this data are used to define apoapsis and periapsis respectively and, by extension, the orbits. The downsampled data is explicitly constructed in the downsample_spice_data python file, but is automatically constructed or called when needed.
+The data are constructed by downsampling the SPICE kernels data (one point per minute) over the entire MESSENGER mission using the hermpy package (https://hermpy.readthedocs.io/en/stable/generated_examples/spice.html). The distance from Mercury is calculated by taking the norm of the vector in _Mercury Solar Orbital_ (MSO) coordinates. The peak and troughs of this data are used to define apoapsis and periapsis respectively and, by extension, the orbits. The downsampled data is explicitly constructed in the downsample_spice_data python file, but is automatically constructed or called when needed.
 
 The validity of the orbits found is verified in the orbit_times_analysis file. This reads the downloaded periapsis data file and verifies that all the orbits are the correct duration as well as investigates the outliers of the orbits, namely the eleven ~9.5hr transition orbits that occur due to MESSENGER's two-stage transition from 12hr to 8hr.
 
-Finally, the orbit_data_plotter plots all ephemeris and MAG data for any given orbit.
+Finally, the orbit_data_plotter plots all ephemeris and MESSENGER magnetometer data for any given orbit.
+
+
+### List of Magnetospheric Boundary Encounters
+An encounter is defined as the time spent in the vicinity of magnetospheric boundary (bow shock/magnetopause). The magnetospheric boundary encounters directory prepares the data from the Sun et al. encounters list (https://zenodo.org/records/18236915) and the Philpott et al. encounters list (https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/1U6FEO) for use in the later directories. It prepares the data to be in the form of 4 columns.
+
+- Time Start
+- Time End
+- Label
+- Encounter duration
+
+where _Time Start_ and _Time End_ are the start and end times of an encounter with a magnetospheric boundary, _Label_ is the type of boundary and its direction (magnetopause/bow shock in/out, in the form of (MPO, MPI, BSO, BSI), and _Encounter Duration_ is the duration of the encounter (_Time End_ - _Time Start_) in hours.
 
 Either of the directories, "encounter" or "crossings", can now be ran depending on the desire of the user. A summary of the files in each directory is below.
 
-
 ## Crossings Directory
 
-The crossings directory contains the files of the analysis of the Hollman et al. crossing list 2025. They can be ran in any particular order, and their titles should give a decent idea of their content.
+A crossing is recorded as the time when a spacecraft crosses the bow shock or magnetopause. We use the Hollman 2025 region classifier (https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2025JH000921) to mark the transition between solar wind - magnetosheath (bow shock) and magnetosheath - magnetosphere (magnetopause). The crossings directory contains the files of the analysis of the Hollman et al. crossing list 2026 (https://zenodo.org/records/21392216). They can be ran in any particular order, and their titles should give a decent idea of their content. 
 
 ### Generic Analysis & Visualisation
 
-This directory looks at the number of crossings per orbit, and breaks them up by type (Magnetopause in/out & bow shock in/out). It also calculates the time between each crossing and each crossing of the same type. This temporal data contains information about highly variable events when the time between crossings is small. It also contains the distribution of times between encounters, making it a useful comparison.
+This directory looks at the number of crossings per orbit, and breaks them up by type (magnetopause in/out & bow shock in/out). It also calculates the time between each crossing and each crossing of the same type. This temporal data contains information about highly variable events when the time between crossings is small. It also contains the distribution of times between encounters, making it a useful comparison.
 
 ### Extrema & Outlier Analysis
 
