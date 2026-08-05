@@ -1,3 +1,7 @@
+import os
+from pathlib import Path
+os.chdir(Path(__file__).resolve().parent)
+
 import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np

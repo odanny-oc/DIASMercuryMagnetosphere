@@ -1,3 +1,7 @@
+import os
+from pathlib import Path
+os.chdir(Path(__file__).resolve().parent)
+
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.table import QTable

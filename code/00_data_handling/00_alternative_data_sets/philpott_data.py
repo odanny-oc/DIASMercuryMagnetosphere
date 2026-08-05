@@ -5,8 +5,6 @@ from astropy.time import Time
 
 home_dir = os.getenv('HOME')
 data_dir = os.path.join(home_dir , '.ephemeris_data/')
-os.makedirs(data_dir, exist_ok = True)
-
 
 """
 Need to download Philpott list from https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/1U6FEO
