@@ -15,7 +15,7 @@ import datetime as dt
 import os
 
 from hermpymod.classes.panels import HistogramPanel, PlanarplotPanel
-from hermpymod.functions.ephemeris_downsampler import parse_periapsis_data
+from hermpymod.functions.ephemeris_downsampler import parse_periapsis_data, parse_crossing_list
 from hermpymod.functions.downsampled_positional_data import parse_spice_downsampled
 
 home_dir = os.getenv('HOME')
@@ -32,7 +32,7 @@ peak_times = Time(peak_data["UTC"]).to_datetime()
 
 print("Number of peaks", len(peak_times))
 
-crossing_data = QTable.read(data_dir + "hollman_2025_crossing_list.ecsv")
+crossing_data = parse_crossing_list()
 
 crossing_times =Time(crossing_data["UTC"]).to_datetime()
 
