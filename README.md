@@ -4,7 +4,8 @@ This repository details the progress made on the analysis of the magnetic bounda
 
 
 ## Data Handling and Preparation Directory
-The directories are ordered by number in order of complexity. That is, the directory labelled one is conceptually the simplest analysis, while higher numbered directories are more complex. The rule of thumb is to run the directories in numerical order, but depending on the user's purposes this is not always necessary. Directories labelled 00, are to indicate that these are not necessary to be run, but in the case of the alternate data sets, this directory needs to be run for analysis between Hollman et al., Sun et al., and Philpott et al. in the encounters directory.
+The directories are ordered by number in order of complexity. That is, the directory labelled one is conceptually the simplest analysis, while higher numbered directories are more complex. The rule of thumb is to run the directories in numerical order, but depending on the user's purposes this is not always necessary. Directories labelled 00, are to indicate that these are not necessary to be run, but in the case of the alternate data sets, this directory needs to be run for analysis between Hollman et al., Sun et al., and Philpott et al. in the encounters directory. 
+
 
 ### Alternative Data Sets
 The alternative data sets directory prepares the data from the Sun et al. encounters list (https://zenodo.org/records/18236915) and the Philpott et al. encounters list (https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/1U6FEO) for use in the later directories. It prepares the data to be in the form of 5 columns.
@@ -62,3 +63,13 @@ We also check the number of encounters that overlap the orbits. By summing the n
 
 ### Spatial Histograms
 This creates 2D histograms superimposed on top of the spatial slices of MESSENGER's orbit. We plot residence, encounters normalised by residence, and number of crossings per encounter.
+
+
+# Dependinces
+All the dependincies can be installed from the requirements.txt file in the code directory. The major dependincies are
+
+- matplotlib
+- numpy
+- hermpy 
+- sunpy
+- astropy
