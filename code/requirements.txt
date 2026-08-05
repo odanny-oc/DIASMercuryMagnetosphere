@@ -22,7 +22,7 @@ frozenlist==1.8.0
 fsspec==2026.4.0
 h5netcdf==1.8.1
 hermpy==0.2.6
--e git+ssh://git@github.com/odanny-oc/DIASComputingResearchInternship.git@85667c3a285a43fbbe0cdbc0620ee3ad908dc5a8#egg=hermpymod&subdirectory=code
+-e ./
 idna==3.17
 ipykernel==7.2.0
 ipython==9.14.1

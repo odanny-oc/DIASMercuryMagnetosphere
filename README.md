@@ -66,7 +66,13 @@ This creates 2D histograms superimposed on top of the spatial slices of MESSENGE
 
 
 # Dependinces
-All the dependincies can be installed from the requirements.txt file in the code directory. The major dependincies are
+All the dependencies can be installed from the requirements.txt file in the code directory. To properly install the custom packages, cd into the code directory and run 
+
+```bash
+pip install -r requirements.txt
+```
+
+The major dependencies are
 
 - matplotlib
 - numpy
