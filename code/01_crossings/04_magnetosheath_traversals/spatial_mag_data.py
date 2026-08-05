@@ -1,23 +1,26 @@
-import astropy.units as u
+import numpy as np
+import os
+import spiceypy as spice
+import datetime as dt
+
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-
-import numpy as np
-from astropy.table import QTable, vstack, Column
-from hermpy.plotting import Panel, TimeseriesPanel
-from hermpy.net import ClientSPICE, ClientMESSENGER
-from astropy.time import Time
-import spiceypy as spice
-from hermpy.utils import Constants as c
-import datetime as dt
 from matplotlib.lines import Line2D
-from astropy.table import QTable, hstack, vstack
-import sys
-import os
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
+
+import astropy.units as u
+from astropy.table import QTable, vstack, Column
+from astropy.time import Time
+
+from hermpy.net import ClientSPICE, ClientMESSENGER
+from hermpy.data import parse_messenger_mag
+from hermpy.utils import Constants as c
 
 from hermpymod.classes.panels import PlanarplotPanel,  HistogramPanel
 from hermpymod.functions.plot_all import plot_all_ephemeris
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
+from hermpymod.functions.mag_data_plotter import mag_data_plotter 
 
 
 home_dir = os.getenv('HOME')
@@ -27,6 +30,7 @@ img_dir = "../../../plots_and_images/"
 plt.style.use(img_dir + "presentation.mplstyle")
 
 spice_client = ClientSPICE()
+c = ClientMESSENGER()
 
 hollman_crossing_list = parse_crossing_list()
 hollman_crossing_list["UTC"] = Time(hollman_crossing_list["UTC"]).to_datetime()
@@ -87,18 +91,19 @@ for data, name in configs:
     plots = []
 
     id_start =0
-    id_end = 100
+    id_end = 100 
 
     for data_type, label, color in data_sets:
 
         # Magnetosheath traversal duration
         ms_dt = np.array([(i[-1]["UTC"] - i[0]["UTC"]).total_seconds()/3600 for i in data_type])
 
-        # Take shortest 100 traversals
+        # Take shortest traversals
         shortest_indices = np.argsort(ms_dt)[id_start:id_end]
 
         ms_short = []
 
+        shortest_indices = shortest_indices[::10]
 
         for idx in shortest_indices:
             ms_short.append(data_type[idx])
@@ -124,28 +129,19 @@ for data, name in configs:
             for idx in shortest_indices:
                 ms = data_type[idx]
                 time_range = [ms[0]["UTC"].isoformat(),ms[-1]["UTC"].isoformat()]
-                plot_all_ephemeris(time_range, color='k', ax=ax, scatter=False, downsampled=False, resolution=10, frame="MSM")
+                plot_all_ephemeris(time_range, color='k', ax=ax, scatter=False, downsampled=False, resolution=10, frame="MSM", mag=True)
 
-        # Plot crossings
+        # Plot crossings and colorbar
         plot_all_ephemeris([data_type[0][0]["UTC"].isoformat(),data_type[-1][-1]["UTC"].isoformat()], color='none', ax=ax, crossings=ms_crossings, frame="MSM")
+
+        # Colorbar for MAG true is the same for all data.
+        cmap = plt.colormaps['viridis']
+        norm = mcolors.Normalize(vmin=0, vmax=120)
+        sm = cm.ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
+
+        fig.colorbar(sm, cax=ax[-1], label=r'Total Magnetic Field strength ($|B|$ nT)')
 
         fig.suptitle(label)
 
-
-        # Plot histogram of all traversal times
-        hist = HistogramPanel(ms_dt, bins = bins, color=color, minmax=True)
-        hist.ax_set_params = {
-                "title": f"Time between {label} crossings",
-                "xlabel": "Time (Hours)",
-                "ylabel": "Number of crossings",
-                "yscale": "log"
-                }
-        plots.append(hist)
-
-    dt_hist_bs_mp = plots[0] + plots[1]
-    dt_hist_bs_mp.plot(show=False, figsize=(18,16))
-
-    # Print total time spent magnetosheath
-    print("Number of days in magnetosheath" , (sum(plots[1]._data) + sum(plots[1]._data))/(24))
-
-plt.show()
+        plt.show()

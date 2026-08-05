@@ -33,6 +33,10 @@ Zd = Constants.DIPOLE_OFFSET.to("Mercury Radii")
 plt.style.use(img_dir + "presentation.mplstyle")
 
 
+"""
+Function to pair the crossings just before and after the magnetosheath
+"""
+
 def delta_t_magenetosheath(crossing_data):
     crossing_list = crossing_data.copy()
     crossing_label = crossing_list["Label"]

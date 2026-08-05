@@ -70,7 +70,7 @@ Class to plot downsampled positional data, for 2D planar plots
 """
 
 class PlanarplotPanel(Panel):
-    def __init__(self, time=[str, str], plane: Literal["X-Y", "X-Z", "Y-Z", "All"] = "X-Y", cylindrical=False, units="Mercury Radii", mercury=True, crossings=None, MP=True, BS=True, encounters=None, add_legend=True, frame = "MSO", alpha=1.0, color='C0', scatter=True, label=None, grid=False, downsampled=True, resolution=None):
+    def __init__(self, time=[str, str], plane: Literal["X-Y", "X-Z", "Y-Z", "All"] = "X-Y", cylindrical=False, units="Mercury Radii", mercury=True, crossings=None, MP=True, BS=True, encounters=None, add_legend=True, frame = "MSO", alpha=1.0, color='C0', scatter=True, label=None, grid=False, downsampled=True, resolution=None, boundaries=False):
         # Initialize the parent Panel class
         super().__init__() 
         
@@ -91,6 +91,7 @@ class PlanarplotPanel(Panel):
         self._MP = MP
         self._scatter = scatter
         self._label = label
+        self._boundaries = boundaries 
 
         if downsampled:
             orbit_data = parse_spice_downsampled(time_range=time)
@@ -300,14 +301,21 @@ class PlanarplotPanel(Panel):
         stacklevel=2,
     )
 
-        plane = {
+        self._plot_boundaries(ax, self.plane)
+
+        if self._legend:
+            ax.legend(loc='best', bbox_to_anchor=(1.2,1.2))
+
+
+    def _plot_boundaries(self, ax, plane):
+        plane_array = {
                 "X-Y": "xy",
                 "Y-Z": "yz",
                 "X-Z": "xz",
                 }
         R = mercury_rad.to(self.units).value
 
-        plot_magnetospheric_boundaries(ax, frame=self._frame, plane=plane[self.plane], add_legend=True, cylindrical=self._cylindrical, zorder=3)
+        plot_magnetospheric_boundaries(ax, frame=self._frame, plane=plane_array[plane], add_legend=True, cylindrical=self._cylindrical, zorder=3)
 
         ax.set_xlim(-10*R, 10*R)
         ax.set_ylim(-10*R, 10*R)
@@ -315,8 +323,6 @@ class PlanarplotPanel(Panel):
         if self._cylindrical:
             ax.set_ylim(0, 10*R)
 
-        if self._legend:
-            ax.legend(loc='best', bbox_to_anchor=(1.2,1.2))
 
     def _plot_on(self, ax):
         # Plot grid lines
@@ -344,6 +350,8 @@ class PlanarplotPanel(Panel):
                         self.plot_crossings(axis, label)
                     if self._encounters != None:
                         self.plot_encounters(axis, label)
+                    if self._boundaries:
+                        self._plot_boundaries(axis, plane=plane)
                 
         else:
             if self._grid:
@@ -358,6 +366,9 @@ class PlanarplotPanel(Panel):
 
             if self._crossings != None:
                 self.plot_crossings(ax, labels=self._labels)
+
+            if self._boundaries:
+                self._plot_boundaries(ax, plane=self.plane)
 
 
 class HistogramPanel(Panel):

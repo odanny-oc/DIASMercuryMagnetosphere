@@ -1,4 +1,6 @@
 import numpy as np
+import datetime as dt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
 
 from astropy.table import QTable
 from astropy.time import Time
@@ -24,9 +26,9 @@ def total_mag_field(data):
 
 
 
-def mag_data_plotter(time, crossings=True, encounters=True):
+def mag_data_plotter(time, crossings=True, encounters=True, label=None, zoom=None):
 
-    if not isinstance(time[0], str):
+    if isinstance(time[0], dt.datetime):
         t_start = time[0]
         t_end = time[-1]
         str_times = [t_start.isoformat(), t_end.isoformat()]
@@ -51,7 +53,7 @@ def mag_data_plotter(time, crossings=True, encounters=True):
 
     fig_mag, ax_mag = mag_plot.plot(show=False)
 
-    fig_mag.suptitle(f"MESSENGER MAG data, taken from {str_times[0][:10]}-{str_times[-1][:10]}")
+    fig_mag.suptitle(f"MESSENGER MAG data, taken from {str_times[0][:10]}-{str_times[-1][:10]}" + label)
     lines = ax_mag[1].get_lines()
     lines[0].set_color('k')
     ax_mag[0].axhline(0, ls='--', color='k', label='Zero line')
@@ -64,6 +66,22 @@ def mag_data_plotter(time, crossings=True, encounters=True):
         plot_encounters(t_start, t_end, ax_mag)
 
     for ax in ax_mag:
-        ax.legend()
+        ax.legend(loc='center left')
+
+    if zoom != None:
+        for ax in ax_mag:
+            axins = inset_axes(ax, width="40%", height="40%", loc='upper right')
+
+            for line in ax.get_lines():
+                axins.plot(line.get_xdata(), line.get_ydata(), color=line.get_color(), lw=line.get_linewidth())
+
+            axins.set_xlim(zoom[0], zoom[1])
+            if ax ==ax_mag[0]:
+                axins.set_ylim(-100, 100)
+            if ax ==ax_mag[1]:
+                axins.set_ylim(0, 100)
+
+            axins.tick_params(labelsize=8)
+            mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
 
     return fig_mag, ax_mag

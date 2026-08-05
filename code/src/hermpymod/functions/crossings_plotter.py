@@ -17,7 +17,8 @@ from hermpymod.functions.encounters import parse_encounters_list
 
 def plot_crossings(t_start, t_end, ax):
     crossing_list = parse_crossing_list()
-    crossing_time = crossing_list["UTC"]
+    crossing_list["UTC"] = Time(crossing_list["UTC"]).to_datetime()
+    crossing_time = Time(crossing_list["UTC"]).to_datetime()
     mask = (crossing_time >= t_start) & (crossing_time <= t_end)
     crossing_list = crossing_list[mask]
 
@@ -37,9 +38,9 @@ def plot_crossings(t_start, t_end, ax):
     for i in range(len(ax)):
         for mask in mask_dict:
             if len(ax) == 1:
-                ax[i].vlines(crossing_list["UTC"][mask_dict[mask]["mask"]].to_datetime(), ymin=0, ymax=1, transform=ax[i].get_xaxis_transform(), color= mask_dict[mask]["color"], label = mask, ls='--')
+                ax[i].vlines(crossing_list["UTC"][mask_dict[mask]["mask"]], ymin=0, ymax=1, transform=ax[i].get_xaxis_transform(), color= mask_dict[mask]["color"], label = mask, ls='--')
             else:
-                ax[i].vlines(crossing_list["UTC"][mask_dict[mask]["mask"]].to_datetime(), ymin=0, ymax=1, transform=ax[i].get_xaxis_transform(), color= mask_dict[mask]["color"], label = mask if i == 1 else None, ls='--')
+                ax[i].vlines(crossing_list["UTC"][mask_dict[mask]["mask"]], ymin=0, ymax=1, transform=ax[i].get_xaxis_transform(), color= mask_dict[mask]["color"], label = mask if i == 1 else None, ls='--')
 
 
 def plot_encounters(t_start, t_end, ax):

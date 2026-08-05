@@ -21,6 +21,7 @@ import os
 
 from hermpymod.classes.panels import PlanarplotPanel,  HistogramPanel, plot_magnetospheric_boundaries
 from hermpymod.functions.plot_all import plot_all_ephemeris
+from hermpymod.functions.mag_data_plotter import mag_data_plotter
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 from hermpymod.functions.grazing_angle import get_grazing_angle
 
@@ -28,6 +29,8 @@ from hermpymod.functions.grazing_angle import get_grazing_angle
 home_dir = os.getenv('HOME')
 data_dir = os.path.join(home_dir, '.ephemeris_data/')
 img_dir = "../../../plots_and_images/"
+
+mpl.use('TkAgg')
 
 plt.style.use(img_dir + "presentation.mplstyle")
 
@@ -41,6 +44,7 @@ hollman_crossing_list["UTC"] = Time(hollman_crossing_list["UTC"]).to_datetime()
 """
 Function to pair the crossings just before and after the magnetosheath
 """
+
 
 def delta_t_magenetosheath(crossing_list):
     crossing_time = Time(crossing_list["UTC"]).to_datetime()
@@ -76,27 +80,23 @@ configs = [
 
 
 for data, name in configs:
-    dt, ms_out, ms_in = delta_t_magenetosheath(data)
+    _, ms_out, ms_in = delta_t_magenetosheath(data)
 
     """
     Plots to make, 
     inbound magnetosheath traversals, coloured by BS grazing angle
-    inbound magnetosheath traversals, coloured by MP grazing angle
-    outbound magnetosheath traversals, coloured by BS grazing angle
     outbound magnetosheath traversals, coloured by MP grazing angle
     """
 
     data_sets = [
             (ms_in, r"BS IN \& MP IN", "purple", "BS"),
-            (ms_in, r"BS IN \& MP IN", "purple", "MP"),
-            (ms_out, r"MP OUT \& BS OUT", "pink", "BS"),
             (ms_out, r"MP OUT \& BS OUT", "pink", "MP"),
             ]
     
     plots = []
 
     id_start = 0
-    id_end = 100
+    id_end = 5
 
     for data_type, label, color, angle in data_sets:
 
@@ -112,16 +112,6 @@ for data, name in configs:
             ms_short.append(data_type[idx])
 
 
-        fig = plt.figure()
-        gs = GridSpec(2, 3, figure=fig)
-
-        ax = [
-        fig.add_subplot(gs[0, 0]),
-        fig.add_subplot(gs[0, 1]),
-        fig.add_subplot(gs[0, 2]), 
-        fig.add_subplot(gs[1, :]),
-        ]
-
         # Stack crossings for plotting
         ms_crossings = [vstack(i) for i in ms_short]
         ms_crossings = vstack(ms_crossings)
@@ -130,53 +120,29 @@ for data, name in configs:
         mp_grazing_angle = []
         bs_grazing_angle = []
 
+        tw = dt.timedelta(hours=3)
+
+
+        for ms in ms_short:
+            fig, ax = mag_data_plotter([ms[0]["UTC"] - tw, ms[-1]["UTC"] + tw], crossings=True, label=f" Traversal Duration {(ms[-1]["UTC"] - ms[0]["UTC"]).total_seconds():.2f}", zoom=[ms[0]["UTC"], ms[-1]["UTC"]])
+            # fig.suptitle(label)
+            plt.show()
+
+
         # Calculate grazing angle
-        with spice_client.KernelPool():
-            for crossing in ms_crossings:
-                if "MP" in crossing["Label"]:
-                    # Returns angle, boundary normal vector, and velocity vector
-                    gz_vec = get_grazing_angle(crossing, function="Magnetopause", return_vectors=True)
-                    grazing_angle_vectors.append(gz_vec)
-                    # Save angle for colour map
-                    mp_grazing_angle.append(gz_vec[0])
-                if "BS" in crossing["Label"]:
-                    gz_vec = get_grazing_angle(crossing, function="Bow Shock", return_vectors=True)
-                    grazing_angle_vectors.append(gz_vec)
-                    bs_grazing_angle.append(gz_vec[0])
-
-            grazing_angle_vectors = np.array(grazing_angle_vectors, dtype=object)
-
-            # Set colourmap weights
-            if angle == "MP":
-                values = mp_grazing_angle
-            else:
-                values = bs_grazing_angle
-
-            cmap = mpl.colormaps['plasma']
-            norm = Normalize(vmin=min(values), vmax=max(values))
-            
-
-            # Plot shortest 100 traversals, coloured by grazing angle
-            for i,idx in enumerate(shortest_indices):
-                ms = data_type[idx]
-                time_range = [ms[0]["UTC"].isoformat(),ms[-1]["UTC"].isoformat()]
-                color=cmap(norm(values[i]))
-                plot_all_ephemeris(time_range, color=color, ax=ax, scatter=False, downsampled=False, resolution=10, frame="MSM")
+        # with spice_client.KernelPool():
+        #     for crossing in ms_crossings:
+        #         if "MP" in crossing["Label"]:
+        #             # Returns angle, boundary normal vector, and velocity vector
+        #             gz_vec = get_grazing_angle(crossing, function="Magnetopause", return_vectors=True)
+        #             grazing_angle_vectors.append(gz_vec)
+        #             # Save angle for colour map
+        #             mp_grazing_angle.append(gz_vec[0])
+        #         if "BS" in crossing["Label"]:
+        #             gz_vec = get_grazing_angle(crossing, function="Bow Shock", return_vectors=True)
+        #             grazing_angle_vectors.append(gz_vec)
+        #             bs_grazing_angle.append(gz_vec[0])
+        #
+        #     grazing_angle_vectors = np.array(grazing_angle_vectors, dtype=object)
 
 
-        sm = cm.ScalarMappable(cmap=cmap, norm=norm)
-        sm.set_array([])
-        fig.colorbar(sm, ax=ax, label=angle + ' Grazing angle')
-
-        # Plot magnetic boundaries
-        plot_all_ephemeris([data_type[0][0]["UTC"].isoformat(),data_type[-1][-1]["UTC"].isoformat()], color='none', ax=ax, boundaries=True, frame="MSM")
-
-        # Plot normal vectors
-        ax[-1].quiver(ms_crossings["X MSO"], np.sqrt(ms_crossings["Y MSO"]**2 + (ms_crossings["Z MSO"] - Zd.value)**2), [arr[0] for arr in grazing_angle_vectors[:,1]], [arr[1] for arr in grazing_angle_vectors[:,1]], color="red")
-
-        # Plot velocity vectors
-        ax[-1].quiver(ms_crossings["X MSO"], np.sqrt(ms_crossings["Y MSO"]**2 + (ms_crossings["Z MSO"] - Zd.value)**2), [arr[0] for arr in grazing_angle_vectors[:,2]], [arr[1] for arr in grazing_angle_vectors[:,2]], color='blue')
-
-        fig.suptitle(label)
-
-plt.show()
