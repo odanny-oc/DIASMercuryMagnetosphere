@@ -44,13 +44,14 @@ orbit_times = [(peak_times[i], peak_times[i+1]) for i in range(11, len(peak_data
 print("Number of peaks found", len(peak_times))
 
 crossing_data = parse_crossing_list()
+crossing_data["UTC"] = Time(crossing_data["UTC"]).to_datetime()
 
 encounters_data = parse_encounters_list()
 
 crossing_times =Time(crossing_data["UTC"]).to_datetime()
 
 crossing_orbit_list = orbit_data(crossing_data=crossing_data)
-crossing_orbit_times = [orbit["UTC"].to_datetime() for orbit in crossing_orbit_list]
+crossing_orbit_times = [orbit["UTC"] for orbit in crossing_orbit_list]
 
 types_config = [
     ("BS", ["BS" in crossing_data["Label"][i] for i in range(len(crossing_data))], "yellow"),

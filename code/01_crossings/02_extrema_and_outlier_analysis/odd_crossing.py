@@ -10,7 +10,6 @@ from sunpy.time import TimeRange
 from astropy.time import Time
 import pickle
 
-from hermpy.data import parse_messenger_fips, parse_messenger_mag
 from hermpy.net import ClientMESSENGER
 from hermpy.plotting import MultiPanel, SpectrogramPanel, TimeseriesPanel
 
@@ -38,6 +37,7 @@ img_dir = "../../../plots_and_images/"
 plt.style.use(img_dir + "presentation.mplstyle")
 
 crossing_data = parse_crossing_list()
+crossing_data["UTC"] = Time(crossing_data["UTC"]).to_datetime()
 
 mask = ["UNPHYSICAL" not in label for label in crossing_data["Label"]]
 crossing_data = crossing_data[mask]
@@ -49,8 +49,8 @@ crossing_numbers = []
 
 crossing_times =Time(crossing_data["UTC"]).to_datetime()
 
-crossing_orbit_list = orbit_data()
-crossing_orbit_times = [time["UTC"].to_datetime() for time in crossing_orbit_list]
+crossing_orbit_list = orbit_data(crossing_data=crossing_data)
+crossing_orbit_times = [time["UTC"] for time in crossing_orbit_list]
 
 # Start from Hollman list (orbit 12; index 11)
 orbit_times = [(peak_times[i], peak_times[i+1]) for i in range(11, len(peaks_data) - 1)]
