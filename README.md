@@ -8,45 +8,37 @@ Next, one runs the sun_data.py and philpott_list.py files to download the altern
 
 Either of the directories, "encounter" or "crossings", can now be ran depending on the desire of the user. A summary of the files in each directory is below.
 
-## crossings Directory
+The general structure is that each directory is ordered by complexity. That is, the directory labelled one is conceptually the simplest analysis, while higher numbered directories are more complex.
+
+## Crossings Directory
 
 The crossings directory contains the files of the analysis of the Hollman et al. crossing list 2025. They can be ran in any particular order, and their titles should give a decent idea of their content.
 
-### total_per_orbit
+### Generic Analysis & Visualisation
 
-This plots a histogram of the total number of crossings per orbit.
+This directory looks at the number of crossings per orbit, and breaks them up by type (Magnetopause in/out & bow shock in/out). It also calculates the time between each crossing and each crossing of the same type. This temporal data contains information about highly variable events when the time between crossings is small. It also contains the distribution of times between encounters, making it a useful comparison.
 
-### per_orbit_by_type
+### Extrema & Outlier Analysis
 
-This further breaks down the above plot into magnetopause and bow shock crossings per orbit.
+This takes the data from directory one and looks at the outliers of the data. It looks at the orbits with the highest number of crossings, as well as all the orbits with an odd number of crossings. It also plots the 5 crossings in the Hollman list that are labelled as unphysical.
 
-### dt_between_crossings
+### Crossings Close to Apoapsis & Periapsis
+By looking at crossings near apoapsis (for the bow shock) and periapsis (for the magnetopause), we can see when these boundaries are highly compressed.
 
-This creates a histogram of the time between each crossing, the time between each bow shock crossing, and the time between each magnetopause crossing.
+### Magnetosheath traversals
+Using the Hollman crossings list, we take the last bow shock in and the subsequent magnetopause in to define an inbound magnetosheath traversal. Similarly, we define an outbound magnetosheath traversal as the time from the last magnetopause out to the first bow shock out. We first calculate the length of each traversal and calculate an estimate of how long MESSENGER was in the magnetosheath. The interest lies in the shortest traversals where we expect either the magnetopause or the bow shock to be compressed. We then look at the number of traversals and the length of the shortest traversals, spatially, normalised by MESSENGER's residence. The grazing angle, which is defined with respect to the normal of the average boundary position from Winslow et al., is calculated for each respective crossing. When the grazing angle is 0, it is perpendicular to the boundary, and 90 when it is parallel.
 
+## Encounters Directory
 
-### extrema_analysis
+### Generic Analysis & Visualisation
+Repeats analysis above for encounters. An encounter is defined using the trajectory direction from the Hollman list. Intuitively, an encounter is a collection of crossings of the same type, from first time into the boundary, to the last time, i.e first bow shock in to last bow shock in, without being interrupted by a magnetopause crossing. This is defined in code by grouping crossings of the same type (bow shock - bow shock & magnetopause-magnetopause) that are also in the same _direction_. 
 
-The rest of the directory is dedicated to analysing the outliers of the crossing histogram above. The extrema are the 42 and 54 BS crossings that happen in a single orbit.
+The direction is defined in the Hollman list by whether or not the velocity vector of MESSENGER dotted with the normal vector to the average boundary is positive or negative. With this definition of encounters, we group the crossings into a new list by encounters, and we can analyse the number of encounters per orbit, number of crossings per encounter, and time between encounters.
 
+### Extrema & Outlier Analysis
+This investigates the encounters with an even number of crossings. As a complete encounter should ultimately be going either in or out of a boundary, it must be opened and terminated by a crossing of the same label. Therefore, the number of crossings must be odd.
 
-### odd_crossing
+We also check the number of encounters that overlap the orbits. By summing the number of encounters found per orbit, we can see the encounters that were _overcounted_ due to the encounter lasting into the next orbit.
 
-This looks at all the odd-numbered crossings, which we expect to be unphysical. It plots the MAG data and shows that these occur due to errors or missed crossings in the Hollman list or data gaps in the MESSENGER MAG data.
-
-
-### unphysical
-
-This looks at the 5 unphysical labelled crossings in the Hollman list.
-
-## encounter Directory
-
-### encounters_histogram
-This plots the histograms from the crossings directory, but for the encounters, as well as comparing the number of crossings per encounter.
-
-### dt_between_encounters
- Again, this is similar to dt_between_crossings but for the encounters. To run this its crucial to run the Sun and Philpott data files from earlier, as it compares the results to those lists.
-
-### even_encounters
-
-This looks at a few examples of encounters with an even number of crossings.
+### Spatial Histograms
+This creates 2D histograms superimposed on top of the spatial slices of MESSENGER's orbit. We plot residence, encounters normalised by residence, and number of crossings per encounter.
