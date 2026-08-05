@@ -359,7 +359,7 @@ class PlanarplotPanel(Panel):
             self.plot_trajectories(ax, labels=self._labels)
 
             if self._mercury:
-                self.plot_mercury(ax, labels=self._labels)
+                self.plot_mercury(ax, label=self._labels)
             
             if self._encounters != None:
                 self.plot_encounters(ax, labels=self._labels)
