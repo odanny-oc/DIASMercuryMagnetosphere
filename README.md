@@ -73,3 +73,5 @@ All the dependincies can be installed from the requirements.txt file in the code
 - hermpy 
 - sunpy
 - astropy
+
+The _hermpymod_ package is included in the repo and features modified functions and new plotting panels built from the hermpy package.
