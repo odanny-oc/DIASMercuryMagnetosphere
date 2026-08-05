@@ -26,7 +26,7 @@ def total_mag_field(data):
 
 
 
-def mag_data_plotter(time, crossings=True, encounters=True, label=None, zoom=None):
+def mag_data_plotter(time, crossings=True, encounters=True, label="", zoom=None):
 
     if isinstance(time[0], dt.datetime):
         t_start = time[0]

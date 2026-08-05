@@ -3,13 +3,11 @@ import numpy as np
 
 import os
 
-from astropy.table import QTable
 from astropy.time import Time
 import datetime as dt
 
-from hermpymod.classes.panels import PlanarplotPanel, HistogramPanel
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list, parse_periapsis_data
-from hermpymod.functions.encounters import encounter_finder, parse_encounters_list
+from hermpymod.functions.encounters import parse_encounters_list
 from hermpymod.functions.data_per_orbit import orbit_data
 from hermpymod.functions.mag_data_plotter import mag_data_plotter
 from hermpymod.functions.plot_all import plot_all_ephemeris
@@ -65,7 +63,7 @@ for idx, orbit in enumerate(hollman_encounters_per_orbit):
         orbit_number.append(idx)
 
 
-print(len(orbit_number))
+print("Number of orbits wiht less than four encounters", len(orbit_number))
 slicing = len(orbit_number) // 4
 
 # Ignore first 12 orbits as they are empty due to no MAG data
@@ -77,7 +75,7 @@ Plots orbital MAG and ephemeris data
 plots = [15]
 
 for orbit in plots:
-    print(orbit)
+    print(f"Plotting orbit number {orbit} ...")
     encounter_times = [orbit_list[orbit][0], orbit_list[orbit][-1]]
     encounter_times = Time(encounter_times).to_datetime()
     tw = dt.timedelta(hours=2)
@@ -90,4 +88,4 @@ for orbit in plots:
 
     plot_all_ephemeris(time, crossings=crossing_data, encounters=hollman_encounters_list)
     
-plt.show()
+    plt.show()

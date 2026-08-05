@@ -11,12 +11,12 @@ Need to download Philpott list from https://borealisdata.ca/dataset.xhtml?persis
 """
 
 try:
-    philpott_crossings = pd.read_csv(data_dir + 'philpott_list.tab', delimiter="\t" )
+    philpott_crossings = pd.read_csv('./philpott_data.tab', delimiter="\t" )
 except FileNotFoundError:
     try: 
-        philpott_crossings = pd.read_csv(data_dir + 'supporting_table_S1.tab', delimiter="\t" )
+        philpott_crossings = pd.read_csv('./supporting_table_S1.tab', delimiter="\t" )
     except FileNotFoundError:
-        raise FileNotFoundError(f"Philpott list not file in {data_dir}. Please save the Philpott 'supporting_table_S1.tab' file to {data_dir}.")
+        raise FileNotFoundError(f"Philpott list not file in file directory. Please save the Philpott 'supporting_table_S1.tab' file to file directory.")
 
 data_gap_masks ={
         "9" : philpott_crossings["Boundarynumber"] != 9.0,

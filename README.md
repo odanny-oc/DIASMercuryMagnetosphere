@@ -1,14 +1,34 @@
 # DIAS Magnetosphere Group Computing Research Internship
 
-This repository details the progress made on the analysis of the magnetic boundary crossings made by the MESSENGER spacecraft from 2011 to 2015, for the DIAS Computing Research Internship.
+This repository details the progress made on the analysis of the magnetic boundary crossings made by the MESSENGER spacecraft from 2011 to 2015, for the DIAS Computing Research Internship. The goal of this project was to analyse the extrema events of Mercury's boundaries to extract information on the compression of the boundaries despite having no upstream data for large times of the MESSENGER mission.
 
-To start, run the orbit_times_analysis file. This reads the "peaks_data.csv", which is a list of times when MESSENGER was at periapsis. This file verifies that all the orbits are the correct times as well as investigates the outliers of the orbits, namely the eleven ~9.5hr transition orbits that occur due to MESSENGER's two-stage transition from 12hr to 8hr.
 
-Next, one runs the sun_data.py and philpott_list.py files to download the alternative encounter data sets for comparison later. To run philpott_list.py, one must download the Philpott et al. list of encounters https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/1U6FEO (the supporting_table_S1.tab file) and save it to the .ephemeris_data directory created in your home directory. You can then run the philpott_list.py file to prepare the list for comparison with the Hollman encounters later.
+## Data Handling and Preparation Directory
+The directories are ordered by number in order of complexity. That is, the directory labelled one is conceptually the simplest analysis, while higher numbered directories are more complex. The rule of thumb is to run the directories in numerical order, but depending on the user's purposes this is not always necessary. Directories labelled 00, are to indicate that these are not necessary to be run, but in the case of the alternate data sets, this directory needs to be run for analysis between Hollman et al., Sun et al., and Philpott et al. in the encounters directory.
+
+### Alternative Data Sets
+The alternative data sets directory prepares the data from the Sun et al. encounters list (https://zenodo.org/records/18236915) and the Philpott et al. encounters list (https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/1U6FEO) for use in the later directories. It prepares the data to be in the form of 5 columns.
+
+- Time Start
+- Time End
+- Label
+- Encounter duration
+
+where _Time Start_ and _Time End_ are the start and end times of an encounter with a magnetic boundary, _Label_ is the type of boundary and its direction (magnetopause/bow shock in/out, in the form of (MPO, MPI, BSO, BSI), and _Encounter Duration_ is the duration of the encounter (_Time End_ - _Time Start_) in hours.
+
+### Orbit Finder
+*Note* it is unnecessary to run any file in this directory for the analysis of crossings and encounters.
+
+The first objective of the project is to define when an orbit starts and ends. This was done with respect to the _periapsis_. The periapsis and apoapsis are found using the scipy find_peaks function. The data set is constructed by orbit_periapsis_and_apoapsis_finder.py and is saved and downloaded from Zenodo (https://zenodo.org/records/21393912). 
+
+The data is constructed by downsampling the SPICE kernels data (one point per minute) over the entire MESSENGER mission using the hermpy package (https://hermpy.readthedocs.io/en/stable/generated_examples/spice.html). The distance from Mercury is calculated by taking the norm of the vector in _Mercury Solar Orbiter_ (MSO) coordinates. The peak and troughs of this data are used to define apoapsis and periapsis respectively and, by extension, the orbits. The downsampled data is explicitly constructed in the downsample_spice_data python file, but is automatically constructed or called when needed.
+
+The validity of the orbits found is verified in the orbit_times_analysis file. This reads the downloaded periapsis data file and verifies that all the orbits are the correct duration as well as investigates the outliers of the orbits, namely the eleven ~9.5hr transition orbits that occur due to MESSENGER's two-stage transition from 12hr to 8hr.
+
+Finally, the orbit_data_plotter plots all ephemeris and MAG data for any given orbit.
 
 Either of the directories, "encounter" or "crossings", can now be ran depending on the desire of the user. A summary of the files in each directory is below.
 
-The general structure is that each directory is ordered by complexity. That is, the directory labelled one is conceptually the simplest analysis, while higher numbered directories are more complex.
 
 ## Crossings Directory
 
