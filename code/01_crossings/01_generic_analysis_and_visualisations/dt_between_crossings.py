@@ -17,9 +17,6 @@ from astropy.table import QTable, hstack, vstack
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from hermpymod.classes.panels import PlanarplotPanel
 from hermpymod.classes.panels import HistogramPanel
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 

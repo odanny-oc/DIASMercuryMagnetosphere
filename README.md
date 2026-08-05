@@ -20,10 +20,10 @@ Finally, the orbit_data_plotter plots all ephemeris and MESSENGER magnetometer d
 ### List of Magnetospheric Boundary Encounters
 An encounter is defined as the time spent in the vicinity of magnetospheric boundary (bow shock/magnetopause). The magnetospheric boundary encounters directory prepares the data from the Sun et al. encounters list (https://zenodo.org/records/18236915) and the Philpott et al. encounters list (https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/1U6FEO) for use in the later directories. It prepares the data to be in the form of 4 columns.
 
-- Time Start
-- Time End
+- Time Start (YYYY:MM:DD)
+- Time End (YYYY:MM:DD)
 - Label
-- Encounter duration
+- Encounter duration (Hours)
 
 where _Time Start_ and _Time End_ are the start and end times of an encounter with a magnetospheric boundary, _Label_ is the type of boundary and its direction (magnetopause/bow shock in/out, in the form of (MPO, MPI, BSO, BSI), and _Encounter Duration_ is the duration of the encounter (_Time End_ - _Time Start_) in hours.
 
