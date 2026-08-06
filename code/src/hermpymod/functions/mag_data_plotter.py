@@ -71,6 +71,7 @@ def mag_data_plotter(time, crossings=True, encounters=True, label="", zoom=None)
     if zoom != None:
         for ax in ax_mag:
             axins = inset_axes(ax, width="40%", height="40%", loc='upper right')
+            plot_crossings(zoom[0], zoom[1], axins)
 
             for line in ax.get_lines():
                 axins.plot(line.get_xdata(), line.get_ydata(), color=line.get_color(), lw=line.get_linewidth())
