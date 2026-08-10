@@ -15,6 +15,7 @@ data_dir = DATA_DIR
 peak_data = parse_periapsis_data()
 
 crossing_data = parse_crossing_list()
+crossing_data["UTC"] = Time(crossing_data["UTC"])
 
 mask = ["UNPHYSICAL" not in label for label in crossing_data["Label"]]
 crossing_data = crossing_data[mask]

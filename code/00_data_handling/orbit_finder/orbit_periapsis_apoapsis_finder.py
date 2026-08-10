@@ -27,7 +27,7 @@ import matplotlib as mpl
 home_dir = os.getenv('HOME')
 from hermpymod.paths import DATA_DIR
 data_dir = DATA_DIR
-images_dir = "../../plots_and_images/"
+images_dir = "../../../plots_and_images/"
 
 mpl.use("QtAgg")
 
@@ -190,8 +190,8 @@ plt.legend(loc='upper left')
 # plt.savefig(images_dir + "orbits_plot_with_peaks.svg")
 
 # Save peak data
-periapsis_data.write(data_dir + "periapsis_data.csv", overwrite=True)
-apoapsis_data.write(data_dir + "apoapsis_data.csv", overwrite=True)
+periapsis_data.write(os.path.join(data_dir, "periapsis_data.csv"), overwrite=True)
+apoapsis_data.write(os.path.join(data_dir, "apoapsis_data.csv"), overwrite=True)
 
 print("Plot finished!")
 
