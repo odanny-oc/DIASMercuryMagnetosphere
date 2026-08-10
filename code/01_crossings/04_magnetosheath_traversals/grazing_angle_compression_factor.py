@@ -180,40 +180,15 @@ for data, name in configs:
         mp_radial_dist = np.sqrt(mp_pos[0]**2 + mp_pos[1]**2 + (mp_pos[2] + Zd)**2)
         bs_radial_dist = np.sqrt(bs_pos[0]**2 + bs_pos[1]**2 + (bs_pos[2] + Zd)**2)
  
-        fig, ax = plt.subplots(2)
-        point_size = 0.2
+
         if direction == "Inbound":
-            ax[0].scatter(first_crossing["UTC"],radial_distance_first, label="Last BS IN", s=point_size)
-            ax[0].scatter(first_crossing["UTC"],bs_radial_dist, label="Average BS boundary distance from Mercury, in radial line with MESSENGER", s=point_size)
             delta_r_bs = (radial_distance_first - bs_radial_dist)
-            ax[0].scatter(first_crossing["UTC"], delta_r_bs, label="Distance from MESSENGER to average BS boundary", s=point_size)
-
-            ax[1].scatter(second_crossing["UTC"],radial_distance_second,label= "First MP IN", s=point_size)
-            ax[1].scatter(second_crossing["UTC"],mp_radial_dist, label="Average MP boundary distance from Mercury, in radial line with MESSENGER" , s=point_size)
             delta_r_mp = (radial_distance_second - mp_radial_dist)
-            ax[1].scatter(second_crossing["UTC"], delta_r_mp, label ="Distance from MESSENGER to average MP boundary", s=point_size)
+
         else:
-            ax[0].scatter(second_crossing["UTC"],radial_distance_second, label = "First BS OUT", s=point_size)
-            ax[0].scatter(second_crossing["UTC"],bs_radial_dist, label="Average BS distance from Mercury, in radial line with MESSENGER", s=point_size)
-
             delta_r_bs = (radial_distance_second - bs_radial_dist)
-            ax[0].scatter(second_crossing["UTC"], delta_r_bs, label="Distance from average BS boundary to MESSENGER", s=point_size)
-
-            ax[1].scatter(first_crossing["UTC"],radial_distance_first, label="Last MP OUT", s=point_size)
-            ax[1].scatter(first_crossing["UTC"],mp_radial_dist, label="Average MP distance from Mercury, in radial line with MESSENGER", s=point_size)
-
             delta_r_mp = (radial_distance_first - mp_radial_dist)
-            ax[1].scatter(first_crossing["UTC"], delta_r_mp, label="Distance from average MP boundary to MESSENGER", s=point_size)
 
-        for axis in ax:
-            axis.axhline(color='k', ls='--')
-
-        fig.suptitle(direction + " traversals of magnetosheath, distances from Mercury")
-        fig.supylabel("Distance (Mercury Radii)")
-        fig.supxlabel("Time UTC (YYYY:MM:DD)")
-
-        ax[0].legend()
-        ax[1].legend()
         
         if direction == "Inbound":
             hists_config = [
@@ -229,18 +204,6 @@ for data, name in configs:
         
 
         for crossing, delta_r, boundary, boundary_label in hists_config:
-            df = pd.DataFrame({"UTC" : crossing["UTC"], "Distance": delta_r}).set_index('UTC')
-            df.index = pd.to_datetime(df.index)
-            window = "10D"
-            x_smooth = df["Distance"].rolling(window).mean()
-
-            fig, ax = plt.subplots()
-            ax.plot(x_smooth.index, x_smooth, label=f'Compression distance Boxcar averaged ({window})')
-            fig.suptitle(f"Compression distance for {direction} {boundary_label}")
-            ax.set_xlabel('Time UTC (YYYY:MM:DD)')
-            ax.set_ylabel('Distance (Mercury Radii)')
-            ax.axhline(color='k', ls='--')
-            ax.legend()
 
             compression_factor = delta_r / boundary
 
