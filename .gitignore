@@ -4,4 +4,5 @@ data/orbits_plot.svg
 spis_projects/OpenCASCADECraft.spis5/
 **/__pycache__/
 **/.build/
+**/.cache/
 **/svg-inkscape/

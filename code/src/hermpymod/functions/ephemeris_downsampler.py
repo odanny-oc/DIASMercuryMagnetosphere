@@ -14,12 +14,10 @@ Zd = c.DIPOLE_OFFSET.to("Mercury Radii")
 
 
 home_dir = os.getenv("HOME")
-data_dir = os.path.join(home_dir, ".ephemeris_data/")
-os.makedirs(data_dir, exist_ok = True)
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 
-save_path = os.path.join(data_dir, "hollman_2025_crossing_list.csv")
-
-EPHEMERIS_FILE = data_dir + 'orbit_ephermis_data_downsampled.ecsv'
+EPHEMERIS_FILE = os.path.join(data_dir , 'orbit_ephermis_data_downsampled.ecsv')
 
 # 2011-03-23T23:48 first crossing
 mission_start = Time("2011-03-18 00:50:00").to_datetime()
@@ -169,7 +167,7 @@ def parse_spice(time_array, units="Mercury Radii", frame="MSO"):
                 raise ValueError(f"End time after mission end ({Time(mission_end)})")
 
         else:
-            time=[time]
+            print("arrayed time")
         
 
         # Call data
@@ -247,8 +245,8 @@ def build_ephemeris_table(force_rebuild=False, frame="All"):
 
     # Save the table
     if force_rebuild:
-        ephemeris_data.write(data_dir + 'orbit_ephermis_data_downsampled.ecsv', overwrite = True)
+        ephemeris_data.write(EPHEMERIS_FILE, overwrite = True)
     else:
-        ephemeris_data.write(data_dir + 'orbit_ephermis_data_downsampled.ecsv')
+        ephemeris_data.write(EPHEMERIS_FILE)
     
     print(f'Data Saved')

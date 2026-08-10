@@ -31,7 +31,8 @@ from hermpymod.functions.grazing_angle import get_grazing_angle
 
 
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, '.ephemeris_data/')
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
 mpl.use('TkAgg')
@@ -127,8 +128,8 @@ for data, name in configs:
         tw = dt.timedelta(hours=3)
 
 
-        for ms in ms_short:
-            fig, ax = mag_data_plotter([ms[0]["UTC"] - tw, ms[-1]["UTC"] + tw], crossings=True, label=f" Traversal Duration {(ms[-1]["UTC"] - ms[0]["UTC"]).total_seconds():.2f}", zoom=[ms[0]["UTC"], ms[-1]["UTC"]])
+        for ms in [ms_short[-1]]:
+            fig, ax = mag_data_plotter([ms[0]["UTC"] - tw, ms[-1]["UTC"] + tw], crossings=True, label=f" Traversal Duration {(ms[-1]["UTC"] - ms[0]["UTC"]).total_seconds():.2f}s", zoom=[ms[0]["UTC"] - dt.timedelta(minutes=5), ms[-1]["UTC"] + dt.timedelta(minutes=5)])
             # fig.suptitle(label)
             plt.show()
 

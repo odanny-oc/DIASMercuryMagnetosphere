@@ -3,18 +3,17 @@ import os
 from astropy.table import QTable
 from astropy.time import Time
 from hermpy.net import ClientSPICE
-from hermpymod.functions.ephemeris_downsampler import build_ephemeris_table
+from hermpymod.functions.ephemeris_downsampler import build_ephemeris_table, EPHEMERIS_FILE
 import warnings
 
 
 
 home_dir = os.getenv("HOME")
-data_dir = os.path.join(home_dir, ".ephemeris_data/")
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 os.makedirs(data_dir, exist_ok = True)
 
 save_path = os.path.join(data_dir, "hollman_2025_crossing_list.csv")
-
-EPHEMERIS_FILE = data_dir + 'orbit_ephermis_data_downsampled.ecsv'
 
 mission_start = Time("2011-03-18 00:00:00").to_datetime()
 mission_end = Time("2015-04-30 19:00:00").to_datetime()

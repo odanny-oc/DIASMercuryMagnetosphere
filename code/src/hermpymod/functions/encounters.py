@@ -7,7 +7,8 @@ from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 
 
 home_dir = os.getenv("HOME")
-data_dir = os.path.join(home_dir, ".ephemeris_data/")
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 os.makedirs(data_dir, exist_ok = True)
 
 crossing_data = parse_crossing_list()

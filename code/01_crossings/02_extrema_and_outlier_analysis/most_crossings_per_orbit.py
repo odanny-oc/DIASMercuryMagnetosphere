@@ -27,7 +27,8 @@ from hermpymod.functions.ephemeris_downsampler import parse_crossing_list, parse
 from hermpymod.functions.encounters import parse_encounters_list
 
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, ".ephemeris_data/")
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
 mpl.use('QtAgg')
@@ -47,6 +48,8 @@ crossing_data = parse_crossing_list()
 crossing_data["UTC"] = Time(crossing_data["UTC"]).to_datetime()
 
 encounters_data = parse_encounters_list()
+encounters_data["Time Start"] = Time(encounters_data["Time Start"]).to_datetime()
+encounters_data["Time End"] = Time(encounters_data["Time End"]).to_datetime()
 
 crossing_times =Time(crossing_data["UTC"]).to_datetime()
 
@@ -57,6 +60,17 @@ types_config = [
     ("BS", ["BS" in crossing_data["Label"][i] for i in range(len(crossing_data))], "yellow"),
     # ("MP", ["MP" in crossing_data["Label"][i] for i in range(len(crossing_data))], "purple"),
         ]
+
+encounters_per_orbit = []
+
+
+for orbit in orbit_times:
+    mask_start = (encounters_data["Time Start"] >= orbit[0]) & (encounters_data["Time Start"] <= orbit[-1])
+    mask_end = (encounters_data["Time End"] >= orbit[0]) & (encounters_data["Time End"] <= orbit[-1])
+    mask = mask_start | mask_end
+
+    encounters_per_orbit.append(encounters_data[mask])
+
 
 total_crossing_numbers = [len(i) for i in crossing_orbit_list]
 
@@ -91,12 +105,14 @@ for label, mask, color in types_config:
 
         tw = dt.timedelta(hours=3)
         mag_times = (orbit_times[max_list_indices[i]][0] - tw, orbit_times[max_list_indices[i]][-1] + tw)
-        fig, ax = mag_data_plotter(mag_times)
+        mag_times_zoom = (encounters_per_orbit[max_list_indices[i]]["Time Start"][1], encounters_per_orbit[max_list_indices[i]]["Time End"][-2])
+
+        fig, ax = mag_data_plotter(mag_times, zoom=mag_times_zoom)
 
 
         for ax in ax:
             ax.axvspan(orbit_times[max_list_indices[i]][0], orbit_times[max_list_indices[i]][-1], alpha=0.3, color= "green", label=f"Orbit {max_list_indices[i]}\n Number of crossings {max_list[i]}")
-            ax.legend(fontsize=16)
+            ax.legend(fontsize=16, loc="center left")
 
 
 plt.show()

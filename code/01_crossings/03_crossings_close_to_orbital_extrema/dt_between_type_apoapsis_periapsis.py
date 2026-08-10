@@ -10,11 +10,13 @@ from hermpymod.functions.ephemeris_downsampler import parse_apoapsis_data, parse
 from hermpymod.functions.downsampled_positional_data import parse_spice_downsampled
 from hermpymod.functions.encounters import parse_encounters_list
 from hermpymod.functions.plot_all import plot_all_ephemeris
+from hermpymod.functions.boundary_models_mod import boundary_fitter, plot_magnetospheric_boundaries
 from hermpymod.classes.panels import HistogramPanel
 
 
 # Load crossing and encounter data set for plots
 crossing_data = parse_crossing_list()
+crossing_data["UTC"] = Time(crossing_data["UTC"]).to_datetime()
 encounters_data = parse_encounters_list()
 
 
@@ -225,6 +227,28 @@ for extrema, location_times, location, title in extrema_config:
 
         # Plot length till apo/periapsis on top of above plot
         plot_all_ephemeris(time_range_crossing, color='green', mercury=False, scatter=False, ax=ax, label=f"{time_dt:.2f} minutes {direction} {location}")
+
+        crossing_pos = crossing_data[np.searchsorted(crossing_data["UTC"], crossing)]
+        if crossing_pos["Label"] == "MP":
+            function = "Magenetopause"
+        else:
+            function = "Bow Shock"
+
+        fit_param = boundary_fitter([crossing_pos, crossing_pos], function=function, epsilon=1.04, alpha=0.5)
+
+        config = [
+                (ax[0], "xy", False),
+                (ax[1], "xz", False),
+                (ax[2], "yz", False),
+                (ax[3], "xy", True),
+                ]
+
+        for axis, plane, cylindrical in config:
+            if function == "Magenetopause":
+                plot_magnetospheric_boundaries(axis, plane=plane, cylindrical=cylindrical, sub_solar_magnetopause=fit_param[0], color='red', frame= 'MSO')
+            else:
+                plot_magnetospheric_boundaries(axis, plane=plane, cylindrical=cylindrical, p=fit_param[0], color='red', frame= 'MSO')
+
         ax[-1].set_title(title)
         handles, _ = ax[0].get_legend_handles_labels()
         fig.legend(handles=handles)

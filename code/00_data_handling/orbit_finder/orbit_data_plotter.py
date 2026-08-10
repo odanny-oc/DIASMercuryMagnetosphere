@@ -17,8 +17,9 @@ from hermpymod.functions.mag_data_plotter import mag_data_plotter
 from hermpymod.functions.plot_all import plot_all_ephemeris
 
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, '.ephemeris_data/')
-img_dir = "../../plots_and_images/"
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
+img_dir = "../../../plots_and_images/"
 
 plt.style.use(img_dir + "presentation.mplstyle")
 

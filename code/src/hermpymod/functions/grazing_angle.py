@@ -39,7 +39,7 @@ spice_client.KERNEL_LOCATIONS.update(
 
 
 def get_boundary_normal(
-    position: Tuple[float, float], boundary: Literal["Bow Shock", "Magnetopause"]
+    position, boundary: Literal["Bow Shock", "Magnetopause"]
 ) -> Tuple[float, float]:
 
     match boundary:
@@ -81,8 +81,14 @@ def get_boundary_normal(
     # This method, utilising a k-d tree is computationally faster than iterrating through
     # the points and determining the distance.
     # O(logN) vs O(N)
+
     kd_tree = scipy.spatial.KDTree(boundary_positions)
-    _, closest_index = kd_tree.query(position)
+    
+    if position.ndim == 2:
+        _, closest_index = kd_tree.query(position.T)
+
+    else:
+        _, closest_index = kd_tree.query(position)
     closest_position = boundary_positions[closest_index]
 
     # We can numerically find the tangent at each point on the curve using the
@@ -91,7 +97,7 @@ def get_boundary_normal(
     dr_dphi = np.gradient(r_coords, phi)
 
     tangent = np.array([dx_dphi[closest_index], dr_dphi[closest_index]])
-    tangent = tangent / np.sqrt(np.sum(tangent**2))
+    tangent = tangent / np.sqrt(np.sum(tangent**2, axis=0))
 
     # Rotate tangent by 90 degrees to get a normal candidate.
     normal_vector = np.array([-tangent[1], tangent[0]])
@@ -99,8 +105,16 @@ def get_boundary_normal(
     # Ensure the normal points outwards by determining the dot product between
     # the candidate normal vector and the vector to the closest position on the
     # curve.
-    if np.dot(normal_vector, closest_position) < 0:
-        normal_vector = -normal_vector
+    
+    # per-point dot product between normal and vector to closest boundary point
+    if position.ndim == 2:
+        dot = np.sum(normal_vector * closest_position.T, axis=0)  # (N,)
+        flip_mask = dot < 0
+        normal_vector[:, flip_mask] *= -2
+
+    else:
+        if np.dot(normal_vector, closest_position) < 0:
+            normal_vector = -normal_vector
 
     return normal_vector
 
@@ -130,7 +144,7 @@ def get_grazing_angle(
     Parameters
     ----------
     crossing :
-        Crossing object as saved in Hollman et al. crossing list 20205
+        Crossing object as saved in Hollman et al. crossing list 2025
 
         Must contain columns matching:
         'UTC'
@@ -175,7 +189,8 @@ def get_grazing_angle(
 
     xlab, ylab ,zlab = [i for i in next_position.keys() if frame in i]
 
-    next_position = next_position[0]
+    if len(next_position) == 1:
+        next_position = next_position[0]
 
     cylindrical_start_position = np.array(
         [start_position["X MSO"], np.sqrt(start_position["Y MSO"] ** 2 + start_position["Z MSO"] ** 2)]
@@ -184,6 +199,7 @@ def get_grazing_angle(
     cylindrical_next_position = np.array(
         [next_position[xlab].value, np.sqrt(next_position[ylab].value ** 2 + next_position[zlab].value ** 2)]
     )
+
 
     # Mercury radii/s
     cylindrical_velocity = cylindrical_next_position - cylindrical_start_position
@@ -198,26 +214,34 @@ def get_grazing_angle(
     # curve is parallel to the normal vector of that curve at that closest point.
     normal_vector = get_boundary_normal(cylindrical_start_position, boundary = function)
 
-    # If the x component of the normal vector is negative, the vector found is
-    # actually the inward pointing normal. Hence, we need to flip the vector.
-    if normal_vector[0] < 0:
-        normal_vector = normal_vector * -1
-
-    grazing_angle = np.arccos(
-        np.dot(normal_vector, cylindrical_velocity)
-        / (np.sqrt(np.sum(normal_vector**2)) * np.sqrt(np.sum(cylindrical_velocity**2)))
-    )
-    
-    # Radians to degrees
-    grazing_angle *= 180/np.pi
+    if normal_vector.ndim == 2:
+        dot = np.sum(normal_vector * cylindrical_velocity, axis=0)
+        norm_n = np.sqrt(np.sum(normal_vector**2, axis=0))
+        norm_v = np.sqrt(np.sum(cylindrical_velocity**2, axis=0))
+        grazing_angle = np.arccos(dot / (norm_n * norm_v))
 
     # If the grazing angle is greater than 90, then we take 180 - angle as its from the other side
     # This occurs as we don't make an assumption as to what side of the model boundary we are.
     # i.e. we could be referencing the normal, or the anti-normal.
-    if grazing_angle > 90:
-        # If the angle is greater than 90 degrees, we have the normal vector
-        # the wrong way around. i.e. the inward pointing normal.
-        grazing_angle = 180 - grazing_angle
+
+        grazing_angle = np.degrees(grazing_angle)
+
+        grazing_angle = np.where(grazing_angle > 90, 180 - grazing_angle, grazing_angle)
+
+    else:
+        grazing_angle = np.arccos(
+            np.dot(normal_vector, cylindrical_velocity)
+            / (np.sqrt(np.sum(normal_vector**2)) * np.sqrt(np.sum(cylindrical_velocity**2)))
+        )
+
+        # Radians to degrees
+        grazing_angle *= 180/np.pi
+
+        if grazing_angle > 90:
+            grazing_angle = 180 - grazing_angle
+
+        grazing_angle = float(grazing_angle)
+    
 
     if verbose:
         print(f"Crossing Start Time: {crossing['Start Time']}")
@@ -230,75 +254,4 @@ def get_grazing_angle(
     if return_vectors:
         return grazing_angle, normal_vector, cylindrical_velocity
 
-    return float(grazing_angle)
-
-# def Get_Grazing_Angle_Vectorised(
-#     crossings,
-#     function: Literal["Bow Shock", "Magnetopause"] = "Bow Shock",
-#     return_vectors: bool = False,
-#     aberrate: bool | str = True,
-# ):
-#     print(f"Processing {len(crossings)} crossings")
-#
-#     mid_crossing_times = (
-#         crossings["Start Time"] + (crossings["End Time"] - crossings["Start Time"]) / 2
-#     )
-#     next_times = mid_crossing_times + pd.Timedelta(seconds=1)
-#
-#     start_positions = (
-#         np.array(
-#             traj.Get_Position(
-#                 "MESSENGER",
-#                 mid_crossing_times,
-#                 frame="MSM",
-#                 aberrate=aberrate,
-#             )
-#         )
-#         / Constants.MERCURY_RADIUS.to("km")
-#     )
-#
-#     next_positions = (
-#         np.array(
-#             traj.Get_Position(
-#                 "MESSENGER",
-#                 next_times,
-#                 frame="MSM",
-#                 aberrate=aberrate,
-#             )
-#         )
-#         / Constants.MERCURY_RADIUS.to("km")
-#     )
-#
-#     cylindrical_start_positions = np.column_stack(
-#         [
-#             start_positions[:, 0],
-#             np.sqrt(start_positions[:, 1] ** 2 + start_positions[:, 2] ** 2),
-#         ]
-#     )
-#     cylindrical_next_positions = np.column_stack(
-#         [
-#             next_positions[:, 0],
-#             np.sqrt(next_positions[:, 1] ** 2 + next_positions[:, 2] ** 2),
-#         ]
-#     )
-#
-#     cylindrical_velocities = cylindrical_next_positions - cylindrical_start_positions
-#     cylindrical_velocities /= np.linalg.norm(cylindrical_velocities, axis=1)[:, None]
-#
-#     normal_vectors = [get_boundary_normal(position, boundary=function) for position in cylindrical_start_positions]
-#
-#     dot_products = np.sum(normal_vectors * cylindrical_velocities, axis=1)
-#
-#     grazing_angles = np.arccos(dot_products)
-#     grazing_angles = np.degrees(grazing_angles)  # convert to degrees
-#
-#     # If the grazing angle is greater than 90, then we take 180 - angle as its from the other side
-#     # This occurs as we don't make an assumption as to what side of the model boundary we are.
-#     # i.e. we could be referencing the normal, or the anti-normal.
-#     grazing_angles = np.where(grazing_angles > 90, 180 - grazing_angles, grazing_angles)
-#
-#     if return_vectors:
-#         normal_vectors = np.where(grazing_angles > 90, -normal_vectors, normal_vectors)
-#         return grazing_angles, normal_vectors, cylindrical_velocities
-#
-#     return grazing_angles
+    return grazing_angle

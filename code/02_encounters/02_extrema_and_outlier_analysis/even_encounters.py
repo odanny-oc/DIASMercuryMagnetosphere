@@ -24,8 +24,8 @@ from hermpymod.functions.plot_all import plot_all_ephemeris
 
 
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, '.ephemeris_data/')
-
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 plt.style.use(img_dir + "presentation.mplstyle")
 
 crossing_data = parse_crossing_list()

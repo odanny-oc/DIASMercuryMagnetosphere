@@ -28,7 +28,8 @@ from hermpymod.functions.mag_data_plotter import mag_data_plotter
 
 
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, '.ephemeris_data/')
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
 plt.style.use(img_dir + "presentation.mplstyle")
@@ -144,7 +145,12 @@ for data, name in configs:
         sm = cm.ScalarMappable(cmap=cmap, norm=norm)
         sm.set_array([])
 
-        fig.colorbar(sm, cax=ax[-1], label=r'Total Magnetic Field strength ($|B|$ nT)')
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+        divider = make_axes_locatable(ax[-1])
+        cax = divider.append_axes("right", size="4%", pad=0.1)
+
+        fig.colorbar(sm, cax=cax, label=r'Total Magnetic Field strength ($|B|$ nT)')
 
         fig.suptitle(label)
 

@@ -25,7 +25,8 @@ from hermpy.utils import Constants as c
 import matplotlib as mpl
 
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, ".ephemeris_data/")
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 images_dir = "../../plots_and_images/"
 
 mpl.use("QtAgg")

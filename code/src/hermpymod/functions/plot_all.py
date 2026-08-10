@@ -84,7 +84,7 @@ def plot_all_ephemeris(times, units="Mercury Radii", crossings=None ,encounters=
 
 
         for xlab, ylab, bxlab, bylab, axis in mag_config:
-            mag_cm = axis.quiver(mag_table[xlab].value, mag_table[ylab].value, mag_table[bxlab].value, mag_table[bylab].value, mag_total, cmap='viridis', scale_units='width', scale=850, norm=norm)
+            mag_cm = axis.quiver(mag_table[xlab].value, mag_table[ylab].value, mag_table[bxlab].value, mag_table[bylab].value, mag_total, cmap='viridis', scale_units='width', scale=1000, norm=norm)
 
 
     if ax_true:

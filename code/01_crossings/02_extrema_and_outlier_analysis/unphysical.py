@@ -32,7 +32,8 @@ from hermpymod.functions.ephemeris_downsampler import parse_crossing_list, parse
 
 mpl.use('TkAgg')
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, ".ephemeris_data/")
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
 plt.style.use(img_dir + "presentation.mplstyle")

@@ -28,7 +28,8 @@ from hermpymod.functions.plot_all import plot_all_ephemeris
 from hermpymod.functions.downsampled_positional_data import parse_spice_downsampled
 
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, '.ephemeris_data/')
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
 

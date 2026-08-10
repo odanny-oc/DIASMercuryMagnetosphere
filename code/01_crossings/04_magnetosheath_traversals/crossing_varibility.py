@@ -27,7 +27,8 @@ from hermpymod.functions.grazing_angle import get_grazing_angle
 
 
 home_dir = os.getenv('HOME')
-data_dir = os.path.join(home_dir, '.ephemeris_data/')
+from hermpymod.paths import DATA_DIR
+data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
 plt.style.use(img_dir + "presentation.mplstyle")
