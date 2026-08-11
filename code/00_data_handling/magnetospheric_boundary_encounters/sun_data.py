@@ -88,7 +88,7 @@ for url in urls:
     # Create name from URL
     tempname = url.split('/')[-1].split('?')[0]
     save_path = os.path.join(tmp_dir, tempname)
-    subprocess.run(["wget", "-O", save_path, url])
+    subprocess.run(["curl", "-Lo", save_path, url])
     
 
 data_frames = []
