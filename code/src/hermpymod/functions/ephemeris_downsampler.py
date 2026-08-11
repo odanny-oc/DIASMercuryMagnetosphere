@@ -71,7 +71,7 @@ def parse_periapsis_data(force_rebuild=False):
 
         url = 'https://zenodo.org/records/21393912/files/periapsis_data.csv?download=1'
 
-        subprocess.run(["wget", "-O", save_path, url])
+        subprocess.run(["curl", "-Lo", save_path, url])
 
         periapsis_data = QTable.read(save_path)
 
@@ -97,7 +97,7 @@ def parse_apoapsis_data(force_rebuild=False):
 
         url = 'https://zenodo.org/records/21393912/files/apoapsis_data.csv?download=1'
 
-        subprocess.run(["wget", "-O", save_path, url])
+        subprocess.run(["curl", "-Lo", save_path, url])
 
         periapsis_data = QTable.read(save_path)
 
@@ -128,7 +128,7 @@ def parse_crossing_list(force_rebuild=False):
 
         url = 'https://zenodo.org/records/21392216/files/hollman_2026_crossing_list.csv?download=1'
 
-        subprocess.run(["wget", "-O", save_path, url])
+        subprocess.run(["curl", "-Lo", save_path, url])
 
         crossing_list = QTable.read(save_path)
 

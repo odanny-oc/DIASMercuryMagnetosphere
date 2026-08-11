@@ -23,9 +23,10 @@ from hermpymod.functions.ephemeris_downsampler import parse_periapsis_data
 from hermpymod.functions.boundary_models_mod import plot_magnetospheric_boundaries
 from hermpymod.functions.plot_all import plot_all_ephemeris
 from hermpymod.functions.downsampled_positional_data import parse_spice_downsampled
+
+
+home_dir = os.getenv('HOME')
 from hermpymod.paths import DATA_DIR
-
-
 data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
