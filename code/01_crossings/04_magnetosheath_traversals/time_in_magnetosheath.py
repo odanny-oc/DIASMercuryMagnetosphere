@@ -85,8 +85,8 @@ for data, name in configs:
     """
 
     data_sets = [
-            (ms_in, r"BS IN \& MP IN", "purple"),
-            (ms_out, r"MP OUT \& BS OUT", "pink"),
+            (ms_in, r"BS IN \& MP IN", "purple", "inbound"),
+            (ms_out, r"MP OUT \& BS OUT", "pink", "outbound"),
             ]
     
     plots = []
@@ -94,7 +94,7 @@ for data, name in configs:
     id_start =0
     id_end = 100
 
-    for data_type, label, color in data_sets:
+    for data_type, label, color, direction in data_sets:
 
         # Magnetosheath traversal duration
         ms_dt = np.array([(i[-1]["UTC"] - i[0]["UTC"]).total_seconds()/3600 for i in data_type])
@@ -136,6 +136,15 @@ for data, name in configs:
 
         fig.suptitle(label)
 
+        for axis in ax[:-2]:
+            axis.set_xlim(0,2)
+            axis.set_ylim(-2,1.5)
+
+        ax[-2].set_xlim(-2.1,1.8)
+        ax[-2].set_ylim(-2,1.5)
+        ax[-1].set_xlim(0,2.1)
+        ax[-1].set_ylim(0,2.5)
+        plt.savefig(img_dir + f"{direction}_magnetosheath_traversals.svg")
 
         # Plot histogram of all traversal times
         hist = HistogramPanel(ms_dt, bins = bins, color=color, minmax=True)

@@ -42,6 +42,10 @@ A magnetosheath traversal is defined from the first and last crossings bordering
 ### time_in_magnetosheath.py
 Computes the duration of every inbound/outbound traversal, plots the trajectory of the 100 shortest traversals of each type, and histograms all traversal durations to estimate the total time MESSENGER spent in the magnetosheath.
 
+<img src="../../plots_and_images/inbound_magnetosheath_traversals.svg" width="250">
+<img src="../../plots_and_images/outbound_magnetosheath_traversals.svg" width="250">
+
+
 ### shortest_traversals_hist.py
 Takes the 100 shortest traversals of each type and spatially bins the spacecraft's position along each one (X-Y, X-Z, Y-Z and cylindrical MSM planes) to produce 2D histograms of the *average traversal duration* per spatial bin, revealing where in space the shortest (most compressed) traversals tend to occur.
 

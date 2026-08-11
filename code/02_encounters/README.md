@@ -15,6 +15,10 @@ Computes the time between consecutive encounters of the same type (BS-BS or MP-M
 ### crossings_per_encounter.py
 For every encounter, uses `arclength_midpoint()` to find the spacecraft's position at the arc-length midpoint of the encounter (interpolating along the downsampled ephemeris), then scatters these midpoint positions (in MSM coordinates, across X-Y, X-Z, Y-Z and cylindrical planes) coloured by the number of crossings in that encounter, with error bars showing how far the spacecraft moved over the encounter. Also histograms the number of BS, MP, and total crossings per encounter.
 
+<img src="../../plots_and_images/crossings_per_encounter.svg" width="250">
+<img src="../../plots_and_images/crossings_per_encounter_by_type.svg" width="250">
+
+
 ## Extrema & Outlier Analysis (./02_extrema_and_outlier_analysis/)
 
 ### even_encounters.py

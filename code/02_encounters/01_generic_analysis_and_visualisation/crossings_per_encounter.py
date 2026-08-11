@@ -251,6 +251,8 @@ for label, data in crossing_per_encounter_config:
     encounters_sub_hist = encounters_hist[0] + encounters_hist[1]
 
     encounters_hist[-1].plot(show=False)
+    plt.savefig(img_dir + "crossings_per_encounter.svg")
     encounters_sub_hist.plot(show=False)
+    plt.savefig(img_dir + "crossings_per_encounter_by_type.svg")
 
 plt.show()

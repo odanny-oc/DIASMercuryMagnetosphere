@@ -12,6 +12,5 @@ def find_repo_root(marker: str = ".git") -> Path:
 
 REPO_ROOT = find_repo_root()
 DATA_DIR = str(REPO_ROOT / "code" / ".cache") + "/"
-print(DATA_DIR)
 os.makedirs(DATA_DIR, exist_ok=True)
 
