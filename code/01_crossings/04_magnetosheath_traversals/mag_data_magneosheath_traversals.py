@@ -144,6 +144,7 @@ for data, name in configs:
                 for text in legend.get_texts():
                     text.set_fontsize(14)
 
+            fig.set_size_inches(20, 18)
             plt.savefig(img_dir + f"ms_traversal_mag_data_{idx}_{direction}.svg")
             
             plt.show()
