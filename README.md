@@ -41,6 +41,6 @@ A crossing, which is taken from the Hollman et al. dataset, is the moment when t
 
 ## Dependencies
 
--- Python
--- LaTeX (for plot style)
--- pyqt6 (wayland)
+- Python
+- LaTeX (for plot style)
+- pyqt6 (wayland)
