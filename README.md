@@ -2,6 +2,19 @@
 
 This repository details the progress made on the analysis of the magnetospheric boundary crossings made by the MESSENGER spacecraft at Mercury from 2011 to 2015.
 
+## Dependencies
+Be sure to have all the dependencies installed
+
+- Python
+- LaTeX (for plot style)
+- pyqt6 (wayland)
+
+For  non-Windows, you may need to confirm that LaTeX is in you PATH variables.
+
+```
+export PATH=$PATH:/path/to/latex/bin
+```
+
 ## Usage
 To get started clone the repository using the link
 
@@ -39,8 +52,3 @@ This repository is a collection of code that produces the analysis of the Hollma
 
 A crossing, which is taken from the Hollman et al. dataset, is the moment when the spacecraft passes from one region to another. These then come with four different labels, magnetopause in (MP_IN), magnetopause out (MP_OUT), bow shock in (BS_IN), and bow shock out (BS_OUT). As the boundaries are quite variable, single crossings can be uncommon. Therefore a useful way to characterise boundaries is using _encounters_. An encounter is a collection of crossings associated with one traversal of a boundary. The encounters code and functions uses the Hollman et al. dataset to group the crossings by encounters.
 
-## Dependencies
-
-- Python
-- LaTeX (for plot style)
-- pyqt6 (wayland)
