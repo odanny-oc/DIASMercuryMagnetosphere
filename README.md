@@ -9,7 +9,7 @@ Be sure to have all the dependencies installed
 - LaTeX (for plot style)
 - pyqt6 (wayland)
 
-For  non-Windows, you may need to confirm that LaTeX is in you PATH variables.
+For  non-Windows, you may need to confirm that LaTeX is in your PATH variables.
 
 ```
 export PATH=$PATH:/path/to/latex/bin
