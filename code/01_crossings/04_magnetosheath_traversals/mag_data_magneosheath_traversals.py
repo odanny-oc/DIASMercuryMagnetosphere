@@ -94,16 +94,16 @@ for data, name in configs:
     """
 
     data_sets = [
-            (ms_in, r"BS IN \& MP IN", "purple", "BS"),
-            (ms_out, r"MP OUT \& BS OUT", "pink", "MP"),
+            (ms_in, r"BS IN \& MP IN", "purple", "BS", "inbound"),
+            (ms_out, r"MP OUT \& BS OUT", "pink", "MP", "outbound"),
             ]
     
     plots = []
 
     id_start = 0
-    id_end = 5
+    id_end = 2
 
-    for data_type, label, color, angle in data_sets:
+    for data_type, label, color, angle, direction in data_sets:
 
         # Magnetosheath traversal duration
         ms_dt = np.array([(i[-1]["UTC"] - i[0]["UTC"]).total_seconds()/3600 for i in data_type])
@@ -128,26 +128,22 @@ for data, name in configs:
         tw = dt.timedelta(hours=3)
 
 
-        for ms in [ms_short[-1]]:
+        for idx, ms in enumerate(ms_short):
             fig, ax = mag_data_plotter([ms[0]["UTC"] - tw, ms[-1]["UTC"] + tw], crossings=True, label=f" Traversal Duration {(ms[-1]["UTC"] - ms[0]["UTC"]).total_seconds():.2f}s", zoom=[ms[0]["UTC"] - dt.timedelta(minutes=5), ms[-1]["UTC"] + dt.timedelta(minutes=5)])
             # fig.suptitle(label)
+
+                # Fix fontsize for subfigure
+            for axis in ax:
+                axis.set_title(axis.get_title(), fontsize=18)
+                axis.xaxis.label.set_size(14)
+                axis.yaxis.label.set_size(14)
+                for label in axis.get_xticklabels() + axis.get_yticklabels():
+                    label.set_fontsize(12)
+
+                legend = axis.get_legend()
+                for text in legend.get_texts():
+                    text.set_fontsize(14)
+
+            plt.savefig(img_dir + f"ms_traversal_mag_data_{idx}_{direction}.svg")
+            
             plt.show()
-
-
-        # Calculate grazing angle
-        # with spice_client.KernelPool():
-        #     for crossing in ms_crossings:
-        #         if "MP" in crossing["Label"]:
-        #             # Returns angle, boundary normal vector, and velocity vector
-        #             gz_vec = get_grazing_angle(crossing, function="Magnetopause", return_vectors=True)
-        #             grazing_angle_vectors.append(gz_vec)
-        #             # Save angle for colour map
-        #             mp_grazing_angle.append(gz_vec[0])
-        #         if "BS" in crossing["Label"]:
-        #             gz_vec = get_grazing_angle(crossing, function="Bow Shock", return_vectors=True)
-        #             grazing_angle_vectors.append(gz_vec)
-        #             bs_grazing_angle.append(gz_vec[0])
-        #
-        #     grazing_angle_vectors = np.array(grazing_angle_vectors, dtype=object)
-
-

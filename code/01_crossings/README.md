@@ -71,5 +71,8 @@ Looks at the 50 shortest traversals in detail: plots their trajectories in MSM c
 ### mag_data_magneosheath_traversals.py
 Plots the MESSENGER magnetometer data across the shortest magnetosheath traversals (zoomed to the traversal itself, with a 3-hour context window either side) with the crossings marked, to visually inspect the magnetic field signature during the shortest, most compressed sheath passages.
 
+<img src="../../plots_and_images/ms_traversal_mag_data_0_inbound.svg" width="500"> <img src="../../plots_and_images/ms_traversal_mag_data_1_inbound.svg" width="500">
+<img src="../../plots_and_images/ms_traversal_mag_data_0_outbound.svg" width="500"> <img src="../../plots_and_images/ms_traversal_mag_data_1_outbound.svg" width="500">
+
 ### spatial_mag_data.py
 Plots the trajectory of every 10th traversal among the shortest 100 (for both directions) in the X-Y, X-Z, Y-Z and cylindrical MSM planes, with the trajectory colour-coded by total magnetic field strength |B|, giving a combined spatial/field-strength view of the shortest traversals.

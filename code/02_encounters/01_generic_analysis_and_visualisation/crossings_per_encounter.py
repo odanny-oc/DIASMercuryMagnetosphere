@@ -252,7 +252,21 @@ for label, data in crossing_per_encounter_config:
 
     encounters_hist[-1].plot(show=False)
     plt.savefig(img_dir + "crossings_per_encounter.svg")
-    encounters_sub_hist.plot(show=False)
+    fig_sub, ax_sub = encounters_sub_hist.plot(show=False)
+    
+
+    # Fix fontsize for subfigure
+    for axis in ax_sub:
+        axis.set_title(axis.get_title(), fontsize=18)
+        axis.xaxis.label.set_size(14)
+        axis.yaxis.label.set_size(14)
+        for label in axis.get_xticklabels() + axis.get_yticklabels():
+            label.set_fontsize(12)
+
+        legend = axis.get_legend()
+        for text in legend.get_texts():
+            text.set_fontsize(14)
+
     plt.savefig(img_dir + "crossings_per_encounter_by_type.svg")
 
 plt.show()
