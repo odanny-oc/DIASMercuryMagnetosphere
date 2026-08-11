@@ -42,8 +42,7 @@ A magnetosheath traversal is defined from the first and last crossings bordering
 ### time_in_magnetosheath.py
 Computes the duration of every inbound/outbound traversal, plots the trajectory of the 100 shortest traversals of each type, and histograms all traversal durations to estimate the total time MESSENGER spent in the magnetosheath.
 
-<img src="../../plots_and_images/inbound_magnetosheath_traversals.svg" width="250">
-<img src="../../plots_and_images/outbound_magnetosheath_traversals.svg" width="250">
+<img src="../../plots_and_images/inbound_magnetosheath_traversals.svg" width="500"> <img src="../../plots_and_images/outbound_magnetosheath_traversals.svg" width="500">
 
 
 ### shortest_traversals_hist.py
