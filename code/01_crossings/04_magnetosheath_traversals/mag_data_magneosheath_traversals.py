@@ -129,7 +129,7 @@ for data, name in configs:
 
 
         for idx, ms in enumerate(ms_short):
-            fig, ax = mag_data_plotter([ms[0]["UTC"] - tw, ms[-1]["UTC"] + tw], crossings=True, label=f" Traversal Duration {(ms[-1]["UTC"] - ms[0]["UTC"]).total_seconds():.2f}s", zoom=[ms[0]["UTC"] - dt.timedelta(minutes=5), ms[-1]["UTC"] + dt.timedelta(minutes=5)])
+            fig, ax = mag_data_plotter([ms[0]["UTC"] - tw, ms[-1]["UTC"] + tw], crossings=True, label=f" Traversal Duration {(ms[-1]["UTC"] - ms[0]["UTC"]).total_seconds():.2f}s", zoom=[ms[0]["UTC"] - dt.timedelta(minutes=5), ms[-1]["UTC"] + dt.timedelta(minutes=5)], fontsize=20)
             # fig.suptitle(label)
 
                 # Fix fontsize for subfigure
@@ -144,7 +144,7 @@ for data, name in configs:
                 for text in legend.get_texts():
                     text.set_fontsize(14)
 
-            fig.set_size_inches(20, 18)
+            fig.set_size_inches(15, 12)
             plt.savefig(img_dir + f"ms_traversal_mag_data_{idx}_{direction}.svg")
             
             plt.show()

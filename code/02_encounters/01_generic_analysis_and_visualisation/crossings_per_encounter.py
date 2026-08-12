@@ -258,7 +258,7 @@ for label, data in crossing_per_encounter_config:
 
     # Fix fontsize for subfigure
 
-    fig_sub.set_size_inches(20, 18)
+    fig_sub.set_size_inches(10, 8)
 
     for axis in ax_sub:
         axis.set_title(axis.get_title(), fontsize=18)

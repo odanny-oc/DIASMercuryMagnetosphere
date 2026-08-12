@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib as plt
 import datetime as dt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
 
@@ -26,7 +27,7 @@ def total_mag_field(data):
 
 
 
-def mag_data_plotter(time, crossings=True, encounters=True, label="", zoom=None):
+def mag_data_plotter(time, crossings=True, encounters=True, label="", zoom=None, fontsize='large'):
 
     if isinstance(time[0], dt.datetime):
         t_start = time[0]
@@ -53,7 +54,7 @@ def mag_data_plotter(time, crossings=True, encounters=True, label="", zoom=None)
 
     fig_mag, ax_mag = mag_plot.plot(show=False)
 
-    fig_mag.suptitle(f"MESSENGER MAG data, taken from {str_times[0][:10]}-{str_times[-1][:10]}" + label)
+    fig_mag.suptitle(f"MESSENGER MAG data, taken from {str_times[0][:10]}-{str_times[-1][:10]}" + label, fontsize=fontsize)
     lines = ax_mag[1].get_lines()
     lines[0].set_color('k')
     ax_mag[0].axhline(0, ls='--', color='k', label='Zero line')
