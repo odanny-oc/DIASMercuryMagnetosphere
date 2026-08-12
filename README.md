@@ -1,6 +1,6 @@
 # MESSENGER at Mercury: Tracking orbits and encounters with magnetospheric boundaries
 
-This repository details the progress made on the analysis of the magnetospheric boundary crossings made by the MESSENGER spacecraft at Mercury from 2011 to 2015.
+This repository details the progress on the analysis of magnetospheric boundary crossings by the MESSENGER spacecraft at Mercury from 2011 to 2015.
 
 ## Dependencies
 Be sure to have all the dependencies installed
@@ -9,14 +9,14 @@ Be sure to have all the dependencies installed
 - LaTeX (for plot style)
 - pyqt6 (wayland)
 
-For  non-Windows, you may need to confirm that LaTeX is in your PATH variables.
+For non-Windows users, you may need to confirm that the LaTeX binary is part of your PATH variable.
 
 ```
 export PATH=$PATH:/path/to/latex/bin
 ```
 
 ## Usage
-To get started clone the repository using the link
+To get started, clone the repository using the link
 
 ```
 git clone https://github.com/odanny-oc/DIASMercuryMagnetosphere.git
@@ -28,7 +28,7 @@ It is recommended to create a virtual environment inside the repository to downl
 cd DIASMercuryMagnetosphere
 python -m venv .venv
 ```
-To access the Python virtual environment run
+To access the Python virtual environment, run
 
 ```
 source .venv/bin/activate
@@ -52,5 +52,5 @@ This repository is a collection of code that produces the analysis of the Hollma
 
 <img src="./presentation/images/diagrams/magnetospheric_regions.png" width="500">
 
-A crossing, which is taken from the Hollman et al. dataset, is the moment when the spacecraft passes from one region to another. These then come with four different labels, magnetopause in (MP_IN), magnetopause out (MP_OUT), bow shock in (BS_IN), and bow shock out (BS_OUT). As the boundaries are quite variable, single crossings can be uncommon. Therefore a useful way to characterise boundaries is using _encounters_. An encounter is a collection of crossings associated with one traversal of a boundary. The encounters code and functions uses the Hollman et al. dataset to group the crossings by encounters.
+A crossing, which is taken from the Hollman et al. dataset, is the moment when the spacecraft passes from one region to another. These then come with four different labels, magnetopause in (MP_IN), magnetopause out (MP_OUT), bow shock in (BS_IN), and bow shock out (BS_OUT). As the boundaries are quite variable, single crossings can be uncommon. Therefore, a useful way to characterise boundaries is using _encounters_. An encounter is a collection of crossings associated with one traversal of a boundary. The encounters code and functions use the Hollman et al. dataset to group the crossings by their encounters.
 
