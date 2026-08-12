@@ -47,6 +47,8 @@ Once completed, the code, which all sits in the code directory, can be run from 
 python /path/to/file
 ```
 
+For each directory in the `code` directory, there are READMEs which describe what the code does and how it is used.
+
 ## Overview
 This repository is a collection of code that produces the analysis of the Hollman et al. crossing list 2026 (https://zenodo.org/records/21392216). A detailed README can be found within each directory explaining how each file works. The analysis largely pertains to crossings and encounters of _magnetospheric boundaries_ of Mercury. There are two magnetospheric boundaries at Mercury, the _magnetopause_ (MP), and the _bow shock_ (BS). The bow shock is defined as the boundary where particles in the _solar wind_ are suddenly decelerated after first coming into contact with the magnetic field of Mercury. The magnetopause, which sits beyond the bow shock, is where the _magnetic pressure_ of the Sun's magnetic field equalises with Mercury's. This gives rise to three regions, the _solar wind_, the _magnetosheath_, and the _magnetosphere_.
 
