@@ -26,9 +26,13 @@ from hermpymod.functions.plot_all import plot_all_ephemeris
 home_dir = os.getenv('HOME')
 from hermpymod.paths import DATA_DIR
 data_dir = DATA_DIR
+
+img_dir = '../../../plots_and_images/'
+
 plt.style.use(img_dir + "presentation.mplstyle")
 
 crossing_data = parse_crossing_list()
+crossing_data["UTC"] = Time(crossing_data["UTC"])
 
 crossing_label = crossing_data["Label"]
 crossing_direction = crossing_data["Trajectory Direction"]
@@ -65,11 +69,7 @@ for i in mag_encounters:
     fig_mag, ax_mag = mag_data_plotter([t_start, t_end])
     print("Mag data plotted")
 
-    # Plot encounter on graph
-    ax_mag[0].axvspan(encounter_time[0], encounter_time[-1], alpha=0.5, color='orange', label=f'Encounter number {i0}')
-    ax_mag[1].axvspan(encounter_time[0], encounter_time[-1], alpha=0.5, color='orange', label=f'Encounter number {i0}')
-
 
     plot_all_ephemeris([t_start, t_end], crossings=crossing_data, encounters=encounters_list)
 
-plt.show()
+    plt.show()

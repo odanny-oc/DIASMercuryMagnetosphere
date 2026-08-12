@@ -67,8 +67,6 @@ plt.style.use(img_dir + "presentation.mplstyle")
 
 crossing_data = parse_crossing_list()
 
-bins = np.arange(0,7, 1)
-
 hollman_encounters_data = encounter_finder(crossing_data)
 
 ephemeris_data = parse_spice_downsampled()
@@ -83,7 +81,79 @@ encounter_index_end = np.searchsorted(ephemeris_data["UTC"], encounter_times_end
 
 encounter_indices = list(zip(encounter_index_start.tolist(), encounter_index_end.tolist()))
 
+####
+# Histogram Plot
+####
+
+crossing_per_encounter_config = [
+        ("Hollman", hollman_encounters_data),
+        ]
+
+for label, data in crossing_per_encounter_config:
+    mp_encounters = [i for i in data if "MP" in i['Label'][0]]
+    bs_encounters = [i for i in data if "BS" in i['Label'][0]]
+
+    print(len(mp_encounters) , len(bs_encounters))
+    print(len(mp_encounters) + len(bs_encounters))
+    # 5 'UNPHYSICAL' encounters from the crossings. Therefore, sum of lengths less thab length of total
+    print(len(data))
+
+    number_of_crossing_encounter = [len(i) for i in data]
+    number_of_crossing_encounter_mp = [len(i) for i in mp_encounters]
+    number_of_crossing_encounter_bs = [len(i) for i in bs_encounters]
+
+    print(max(number_of_crossing_encounter_bs))
+
+    encounter_bins = np.arange(0, max(number_of_crossing_encounter_bs) + 1, 1)
+
+    configs = [
+            ("BS", number_of_crossing_encounter_bs, "yellow"),
+            ("MP", number_of_crossing_encounter_mp, "purple"),
+            ("total", number_of_crossing_encounter, "red"),
+            ]
+
+    encounters_hist = []
+
+    for encounter_type, data_type, color in configs:
+        hist = HistogramPanel(data_type, bins=encounter_bins, color=color, minmax=True)
+
+        hist.ax_set_params = {
+                "title": f"Number of {encounter_type} crossings per encounter {label}",
+                "xlabel": "Number of crossings",
+                "ylabel": "Number of encounters",
+                "yscale": "log"
+                }
+        encounters_hist.append(hist)
+
+    encounters_sub_hist = encounters_hist[0] + encounters_hist[1]
+
+    encounters_hist[-1].plot(show=False)
+    plt.savefig(img_dir + "crossings_per_encounter.svg")
+    fig_sub, ax_sub = encounters_sub_hist.plot(show=False)
+    
+
+
+    # Fix fontsize for subfigure
+
+    fig_sub.set_size_inches(10, 8)
+
+    for axis in ax_sub:
+        axis.set_title(axis.get_title(), fontsize=18)
+        axis.xaxis.label.set_size(14)
+        axis.yaxis.label.set_size(14)
+        for label in axis.get_xticklabels() + axis.get_yticklabels():
+            label.set_fontsize(12)
+
+        legend = axis.get_legend()
+        for text in legend.get_texts():
+            text.set_fontsize(14)
+
+    plt.savefig(img_dir + "crossings_per_encounter_by_type.svg")
+
+
 average_encounter = []
+
+# Plotting visualisation
 
 
 for idx, (s,e) in enumerate(encounter_indices):
@@ -215,62 +285,5 @@ for mask, title in average_encounter_type:
 
     fig.suptitle(title + " Encounters in MESSENGER Mission")
 
-crossing_per_encounter_config = [
-        ("Hollman", hollman_encounters_data),
-        ]
-
-for label, data in crossing_per_encounter_config:
-    mp_encounters = [i for i in data if "MP" in i['Label'][0]]
-    bs_encounters = [i for i in data if "BS" in i['Label'][0]]
-
-    number_of_crossing_encounter = [len(i) for i in data]
-    number_of_crossing_encounter_mp = [len(i) for i in mp_encounters]
-    number_of_crossing_encounter_bs = [len(i) for i in bs_encounters]
-
-    encounter_bins = np.arange(0, 35, 1)
-
-    configs = [
-            ("BS", number_of_crossing_encounter_bs, "yellow"),
-            ("MP", number_of_crossing_encounter_mp, "purple"),
-            ("total", number_of_crossing_encounter, "red"),
-            ]
-
-    encounters_hist = []
-
-    for encounter_type, data_type, color in configs:
-        hist = HistogramPanel(data_type, bins=encounter_bins, color=color, minmax=True)
-
-        hist.ax_set_params = {
-                "title": f"Number of {encounter_type} crossings per encounter {label}",
-                "xlabel": "Number of crossings",
-                "ylabel": "Number of encounters",
-                "yscale": "log"
-                }
-        encounters_hist.append(hist)
-
-    encounters_sub_hist = encounters_hist[0] + encounters_hist[1]
-
-    encounters_hist[-1].plot(show=False)
-    plt.savefig(img_dir + "crossings_per_encounter.svg")
-    fig_sub, ax_sub = encounters_sub_hist.plot(show=False)
-    
-
-
-    # Fix fontsize for subfigure
-
-    fig_sub.set_size_inches(10, 8)
-
-    for axis in ax_sub:
-        axis.set_title(axis.get_title(), fontsize=18)
-        axis.xaxis.label.set_size(14)
-        axis.yaxis.label.set_size(14)
-        for label in axis.get_xticklabels() + axis.get_yticklabels():
-            label.set_fontsize(12)
-
-        legend = axis.get_legend()
-        for text in legend.get_texts():
-            text.set_fontsize(14)
-
-    plt.savefig(img_dir + "crossings_per_encounter_by_type.svg")
 
 plt.show()

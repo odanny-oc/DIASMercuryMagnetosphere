@@ -13,13 +13,19 @@ os.makedirs(data_dir, exist_ok = True)
 
 crossing_data = parse_crossing_list()
 
-"""
-From list of crossings with direction, construct encounters list
-"""
+
 def encounter_finder(crossing_data=crossing_data):
+    """
+    From list of crossings with direction, construct encounters list
+    
+    Returns ...
+    """
     crossing_time = Time(crossing_data["UTC"]).to_datetime()
     crossing_label = crossing_data["Label"]
     crossing_direction = crossing_data["Trajectory Direction"]
+
+    # Describe list
+
     encounters_data = []
     cross_number = []
 
@@ -28,6 +34,8 @@ def encounter_finder(crossing_data=crossing_data):
 
         try:
             time_delta = crossing_time[i+1] - crossing_time[i]
+
+            # Why 13 hours
             if crossing_type in crossing_label[i+1] and crossing_direction[i] == crossing_direction[i+1] and time_delta<=dt.timedelta(hours=13):
                 cross_number.append(crossing_data[i])
 
@@ -48,11 +56,11 @@ def encounter_finder(crossing_data=crossing_data):
     return encounters_data
 
 
-"""
-Creates/loads list of encounter times and durations
-"""
 
 def parse_encounters_list(force_rebuild=False):
+    """
+    Creates/loads list of encounter times and durations
+    """
 
     encounters_list_dir = os.path.join(data_dir, 'hollman_encounters_list_2025.csv')
 
