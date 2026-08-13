@@ -373,7 +373,7 @@ class PlanarplotPanel(Panel):
 
 
 class HistogramPanel(Panel):
-        def __init__(self, data, bins='auto', color='C0', minmax=False, average=True, label=None, zorder=2):
+        def __init__(self, data, bins='auto', color='C0', min=False, max= False, std=False, average=True, label=None, zorder=2, points_label = "points"):
             # 1. Properly initialize the parent Panel class
             super().__init__() 
             self._data = data
@@ -382,17 +382,30 @@ class HistogramPanel(Panel):
             self.average = np.average(data)
             self._average = average
             self._hist, _ = np.histogram(data, bins=bins)
-            self._minmax = minmax
+            self._min = min
+            self._max = max
             self._label = label
             self._zorder = zorder
+            self._points = points_label
+            self._std = std
 
         def _plot_on(self, ax):
             ax.hist(self._data, bins=self._bins, edgecolor='k', color=self._color, label=self._label, zorder=self._zorder)
             if self._average:
-                ax.axvline(self.average, ls='--', color='r', label=f'Average = {self.average:.2f}')
+                ax.axvline(self.average, ls='--', color='r')
             plot_handles, _ = ax.get_legend_handles_labels()
-            handles = [Line2D([], [], color = 'none', label = f"Number of points = {len(self._data)} \nMedian {np.median(self._data):.2f}\nStandard Deviation {np.std(self._data):.2f}")]
-            if self._minmax:
-                minmax = [Line2D([], [], color = 'none', label = f"Max data = {np.max(self._data):.2f} \nMin data {np.min(self._data):.2f}")]
-                handles += minmax
+            handles = [Line2D([], [], color = 'none', label = f"Average = {self.average:.2f} \n Number of {self._points} = {len(self._data)} \nMedian {np.median(self._data):.2f}")]
+
+            if self._std:
+                std = [Line2D([], [], color = 'none', label = f"Standard Deviation {np.std(self._data):.2f}")]
+                handles += std
+
+            if self._max:
+                max = [Line2D([], [], color = 'none', label = f"Max data = {np.max(self._data):.2f}")]
+                handles += max
+
+            if self._min:
+                min = [Line2D([], [], color = 'none', label = f"Min data {np.min(self._data):.2f}")]
+                handles += min
+
             ax.legend(handles= plot_handles + handles)

@@ -4,10 +4,9 @@ import pandas as pd
 from matplotlib.gridspec import GridSpec
 
 
-from astropy.table import QTable, vstack, Column
 import astropy.units as u
 from astropy.time import Time
-from astropy.table import QTable, hstack, vstack
+from astropy.table import QTable, hstack, vstack, Column, Table
 from sunpy.time import TimeRange
 
 from hermpy.utils import Constants as c
@@ -38,7 +37,7 @@ crossing_label = crossing_data["Label"]
 crossing_direction = crossing_data["Trajectory Direction"]
 crossing_time = crossing_data["UTC"].to_datetime()
 
-encounters_data = encounter_finder(crossing_data)
+encounters_data = encounter_finder(crossing_data, include_outliers=True)
 encounters_list = parse_encounters_list()
 encounter_start_times = Time(encounters_list["Time Start"]).to_datetime()
 
@@ -47,15 +46,11 @@ mag_encounters = [i for i in encounters_data if len(i) %2 == 0]
 
 print("Number of encounters with even number of crossings ", len(mag_encounters))
 
-slicing= len(mag_encounters)//3
-
-mag_encounters = mag_encounters[::slicing]
-# mag_encounters.append(encounters_data[i0])
 
 """
 MAG plots for encounters
 """
-from astropy.table import Table
+
 
 for i in mag_encounters:
     Table.pprint(i, max_lines=-1, max_width=-1)
@@ -67,7 +62,7 @@ for i in mag_encounters:
 
     # Plot MAG data in time interval and all crossings
     fig_mag, ax_mag = mag_data_plotter([t_start, t_end])
-    print("Mag data plotted")
+    print("MAG data plotted")
 
 
     plot_all_ephemeris([t_start, t_end], crossings=crossing_data, encounters=encounters_list)

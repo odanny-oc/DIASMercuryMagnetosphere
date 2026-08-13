@@ -72,7 +72,7 @@ hollman_encounters_data = encounter_finder(crossing_data)
 ephemeris_data = parse_spice_downsampled()
 ephemeris_data["UTC"] = ephemeris_data["UTC"].to_datetime()
 
-encounter_list = parse_encounters_list()
+encounter_list = parse_encounters_list(force_rebuild=True)
 encounter_times_start = Time(encounter_list["Time Start"]).to_datetime()
 encounter_times_end = Time(encounter_list["Time End"]).to_datetime()
 
@@ -81,9 +81,9 @@ encounter_index_end = np.searchsorted(ephemeris_data["UTC"], encounter_times_end
 
 encounter_indices = list(zip(encounter_index_start.tolist(), encounter_index_end.tolist()))
 
-####
+################
 # Histogram Plot
-####
+################
 
 crossing_per_encounter_config = [
         ("Hollman", hollman_encounters_data),
@@ -93,16 +93,16 @@ for label, data in crossing_per_encounter_config:
     mp_encounters = [i for i in data if "MP" in i['Label'][0]]
     bs_encounters = [i for i in data if "BS" in i['Label'][0]]
 
-    print(len(mp_encounters) , len(bs_encounters))
-    print(len(mp_encounters) + len(bs_encounters))
+    print("Number of magnetopause & bow shock encountes", len(mp_encounters) , len(bs_encounters))
+    print("Sum total of encounters", len(mp_encounters) + len(bs_encounters))
     # 5 'UNPHYSICAL' encounters from the crossings. Therefore, sum of lengths less thab length of total
-    print(len(data))
+    print("Length of encounter list (includes 'unphysical encounters')", len(data))
 
     number_of_crossing_encounter = [len(i) for i in data]
     number_of_crossing_encounter_mp = [len(i) for i in mp_encounters]
     number_of_crossing_encounter_bs = [len(i) for i in bs_encounters]
 
-    print(max(number_of_crossing_encounter_bs))
+    print("Highest number of crossings for encounter", max(number_of_crossing_encounter_bs))
 
     encounter_bins = np.arange(0, max(number_of_crossing_encounter_bs) + 1, 1)
 
@@ -115,7 +115,7 @@ for label, data in crossing_per_encounter_config:
     encounters_hist = []
 
     for encounter_type, data_type, color in configs:
-        hist = HistogramPanel(data_type, bins=encounter_bins, color=color, minmax=True)
+        hist = HistogramPanel(data_type, bins=encounter_bins, color=color, average=False, max=True, points_label=f'{encounter_type} encounters')
 
         hist.ax_set_params = {
                 "title": f"Number of {encounter_type} crossings per encounter {label}",
