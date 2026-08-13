@@ -191,7 +191,10 @@ def parse_encounters_list(force_rebuild=False, verbose=False):
     except FileNotFoundError:
         print("File not found. Building encounter list")
 
-        encounters_list, altered_indices = encounter_finder(verbose=True)
+        if verbose:
+            encounters_list, altered_indices = encounter_finder(verbose=True)
+        else:
+            encounters_list = encounter_finder()
 
         # Start/end UTC times for each encounter
         time_start = [i["UTC"][0] for i in encounters_list]
