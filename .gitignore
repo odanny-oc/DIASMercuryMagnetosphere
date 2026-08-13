@@ -6,3 +6,4 @@ spis_projects/OpenCASCADECraft.spis5/
 **/.build/
 **/.cache/
 **/svg-inkscape/
+**/*.bak

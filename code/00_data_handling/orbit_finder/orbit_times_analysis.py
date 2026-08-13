@@ -101,7 +101,7 @@ time_series_plot.plot(show=False)
 
 
 # Plot histogram of orbit times, should be double peaked graph, one for 12hr orbits and one for 8hr orbits
-delta_t_between_orbits_hist = HistogramPanel(delta_t_numeric, bins=time_bins, minmax=True)
+delta_t_between_orbits_hist = HistogramPanel(delta_t_numeric, bins=time_bins, min = True, max=True)
 
 delta_t_between_orbits_hist.ax_set_params = {
         "title": f"Length of all Orbits ({crossing_times[0]} - {crossing_times[-1]})",

@@ -77,10 +77,11 @@ slicing = len(orbit_number) // 4
 Plots orbital MAG and ephemeris data
 """
 
-plots = [15]
+plots = [1103]
+
 
 for orbit in plots:
-    print(f"Plotting orbit number {orbit} ...")
+    print(f"Plotting orbit number {orbit + 1} ...")
     encounter_times = [orbit_list[orbit][0], orbit_list[orbit][-1]]
     encounter_times = Time(encounter_times).to_datetime()
     tw = dt.timedelta(hours=2)

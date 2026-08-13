@@ -147,7 +147,7 @@ for data, name in configs:
         plt.savefig(img_dir + f"{direction}_magnetosheath_traversals.svg")
 
         # Plot histogram of all traversal times
-        hist = HistogramPanel(ms_dt, bins = bins, color=color, minmax=True)
+        hist = HistogramPanel(ms_dt, bins = bins, color=color, min=True,max=True)
         hist.ax_set_params = {
                 "title": f"Time between {label} crossings",
                 "xlabel": "Time (Hours)",

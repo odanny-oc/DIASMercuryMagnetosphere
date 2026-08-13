@@ -143,8 +143,8 @@ for data_12, data_8, label, color1, color2, bins in plot_configs_mp_bs:
     
     # Make histograms
 
-    hist_12 = HistogramPanel(data_12, bins=bins, color=color1, minmax=True, average=False, label=f"12 Hour Orbits \nNumber of points {len(data_12)}",zorder=3)
-    hist_8 = HistogramPanel(data_8, bins=bins, color=color2, minmax=True, average=False, label=f"8 Hour Orbits \nNumber of points {len(data_8)}", zorder=1)
+    hist_12 = HistogramPanel(data_12, bins=bins, color=color1, min=True,max=True, average=False, label=f"12 Hour Orbits \nNumber of points {len(data_12)}",zorder=3)
+    hist_8 = HistogramPanel(data_8, bins=bins, color=color2, min=True,max=True, average=False, label=f"8 Hour Orbits \nNumber of points {len(data_8)}", zorder=1)
 
     hists = [hist_12, hist_8]
 
