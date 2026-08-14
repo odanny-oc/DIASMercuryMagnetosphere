@@ -36,10 +36,8 @@ orbit_list = [[peak_times[i], peak_times[i+1]] for i in range(len(peak_times) - 
 Get times for each orbit to do the same for Philpott and Sun
 """
 
-hollman_encounters_data = encounter_finder(crossing_data)
-print(len(hollman_encounters_data))
 hollman_encounters_list = parse_encounters_list()
-print(len(hollman_encounters_list))
+print("Number of encounters", len(hollman_encounters_list))
 
 hollman_time_start = Time(hollman_encounters_list["Time Start"]).to_datetime() 
 hollman_time_end=Time(hollman_encounters_list["Time End"]).to_datetime() 
