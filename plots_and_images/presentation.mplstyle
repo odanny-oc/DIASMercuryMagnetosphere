@@ -1,4 +1,4 @@
-text.usetex: True
+# text.usetex: True
 font.family: serif
 axes.labelsize: 24
 axes.titlesize: 36
