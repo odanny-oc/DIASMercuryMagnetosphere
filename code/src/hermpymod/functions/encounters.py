@@ -14,6 +14,12 @@ os.makedirs(data_dir, exist_ok = True)
 
 crossing_data = parse_crossing_list()
 
+sig_figs = 4
+
+def round_datetime_to_second(t):
+    return t.replace(microsecond=0) + dt.timedelta(seconds=round(t.microsecond / 1e6))
+
+
 
 def initialise_encounters(crossing_data=crossing_data):
     """
@@ -177,7 +183,7 @@ def parse_encounters_list(force_rebuild=False, verbose=False):
     if verbose:
         force_rebuild = True
 
-    encounters_list_dir = os.path.join(data_dir, 'hollman_encounters_list_2025.csv')
+    encounters_list_dir = os.path.join(data_dir, 'hollman_encounters_list_2026.csv')
 
     if force_rebuild:
         try:
@@ -213,13 +219,17 @@ def parse_encounters_list(force_rebuild=False, verbose=False):
             label.append(encounter_type + direction)
 
         # Duration of each encounter in hours
-        encounter_duration = [(Time(time_end[i]).to_datetime() - Time(time_start[i]).to_datetime()).total_seconds()/3600 for i in range(len(time_start))]
+        encounter_duration = np.array([(Time(time_end[i]).to_datetime() - Time(time_start[i]).to_datetime()).total_seconds()/3600 for i in range(len(time_start))])
+
+        time_start = [round_datetime_to_second(t) for t in Time(time_start).to_datetime()]
+        time_end = [round_datetime_to_second(t) for t in Time(time_end).to_datetime()]
+
 
         encounters_data = QTable({
                 "Time Start": time_start,
                 "Time End": time_end,
                 "Label": label,
-                "Encounter Duration": encounter_duration,
+                "Encounter Duration": np.round(encounter_duration, sig_figs,),
                 "Orbit Number": orbit_number
                 })
         encounters_data.write(encounters_list_dir)
