@@ -6,10 +6,7 @@ This repository details the progress on the analysis of magnetospheric boundary 
 Be sure to have all the dependencies installed
 
 - Python
-- LaTeX (for plot style)
 - pyqt6 (wayland)
-
-For non-Windows users, you may need to confirm that the LaTeX binary is part of your PATH variable.
 
 ```
 export PATH=$PATH:/path/to/latex/bin
