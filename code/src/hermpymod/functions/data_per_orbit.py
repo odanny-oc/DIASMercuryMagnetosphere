@@ -28,11 +28,12 @@ def strip_leading_empty(lst):
     return lst[i:]
 
 
-"""
-Returns crossings in lists corresponding to their orbit. Strips leading empty lists, i.e for Hollman list, first list is the 12th orbit
-"""
-
 def orbit_data(crossing_data=crossing_data, peak_data=peak_data):
+
+    """
+    Returns crossings in lists corresponding to their orbit. Strips leading empty lists, i.e for Hollman list, first list is the 12th orbit
+    """
+
     orbit_list = []
     crossing_times =Time(crossing_data["UTC"]).to_datetime()
     peak_times = Time(peak_data["UTC"]).to_datetime()

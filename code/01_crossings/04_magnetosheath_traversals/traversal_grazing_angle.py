@@ -27,10 +27,10 @@ from hermpymod.classes.panels import PlanarplotPanel,  HistogramPanel, plot_magn
 from hermpymod.functions.plot_all import plot_all_ephemeris
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 from hermpymod.functions.grazing_angle import get_grazing_angle
-
-
-home_dir = os.getenv('HOME')
+from hermpymod.functions.magnetosheath_traversals import magnetosheath_crossings
 from hermpymod.paths import DATA_DIR
+
+
 data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
@@ -43,45 +43,13 @@ spice_client = ClientSPICE()
 hollman_crossing_list = parse_crossing_list()
 hollman_crossing_list["UTC"] = Time(hollman_crossing_list["UTC"]).to_datetime()
 
-"""
-Function to pair the crossings just before and after the magnetosheath
-"""
-
-def delta_t_magenetosheath(crossing_list):
-    crossing_time = Time(crossing_list["UTC"]).to_datetime()
-    crossing_label = crossing_list["Label"]
-
-    crossings_delta_t = [(crossing_time[i+1] - crossing_time[i]) for i in range(len(crossing_time) -1)]
-
-    crossings_delta_t = [i.total_seconds()/3600 for i in crossings_delta_t]
-
-    ms_out = []
-    ms_in = []
-
-
-    for idx, crossing in enumerate(crossing_list):
-        if crossing["Label"] == "MP_OUT":
-            if crossing_label[idx + 1] == "BS_OUT":
-                ms_out.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        elif crossing["Label"] == "BS_IN":
-            if crossing_label[idx + 1] == "MP_IN":
-                ms_in.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        
-
-    return crossings_delta_t, ms_out , ms_in
-
-
 configs = [
         (hollman_crossing_list, "Hollman")
         ]
 
 
 for data, name in configs:
-    dt, ms_out, ms_in = delta_t_magenetosheath(data)
+    ms_out, ms_in = magnetosheath_crossings(data)
 
     """
     Plots to make, 
@@ -128,34 +96,31 @@ for data, name in configs:
         ]
 
         # Stack crossings for plotting
-        ms_crossings = [vstack(i) for i in ms_short]
-        ms_crossings = vstack(ms_crossings)
-
-        grazing_angle_vectors = []
-        mp_grazing_angle = []
-        bs_grazing_angle = []
+        ms_crossings = vstack([vstack(i) for i in ms_short])
+        mp_crossings = vstack([i for i in ms_crossings if "MP" in i["Label"]])
+        bs_crossings = vstack([i for i in ms_crossings if "BS" in i["Label"]])
 
         # Calculate grazing angle
         with spice_client.KernelPool():
-            for crossing in ms_crossings:
-                if "MP" in crossing["Label"]:
-                    # Returns angle, boundary normal vector, and velocity vector
-                    gz_vec = get_grazing_angle(crossing, function="Magnetopause", return_vectors=True)
-                    grazing_angle_vectors.append(gz_vec)
-                    # Save angle for colour map
-                    mp_grazing_angle.append(gz_vec[0])
-                if "BS" in crossing["Label"]:
-                    gz_vec = get_grazing_angle(crossing, function="Bow Shock", return_vectors=True)
-                    grazing_angle_vectors.append(gz_vec)
-                    bs_grazing_angle.append(gz_vec[0])
+            mp_rho = np.sqrt(mp_crossings["Y MSO"]**2 + (mp_crossings["Z MSO"] - Zd.value)**2)
+            mp_pos = np.array([mp_crossings["X MSO"], mp_rho])
 
-            grazing_angle_vectors = np.array(grazing_angle_vectors, dtype=object)
+            # Returns angle, boundary normal vector, and velocity vector
+            mp_grazing_angle = get_grazing_angle(time = mp_crossings["UTC"], position=mp_pos, function="Magnetopause", return_vectors=True)
+            # Save angle for colour map
+
+            bs_rho = np.sqrt(bs_crossings["Y MSO"]**2 + (bs_crossings["Z MSO"] - Zd.value)**2)
+            bs_pos = np.array([bs_crossings["X MSO"], bs_rho])
+            bs_grazing_angle = get_grazing_angle(time=bs_crossings["UTC"], position=bs_pos, function="Bow Shock", return_vectors=True)
+
+
+            print(bs_grazing_angle)
 
             # Set colourmap weights
             if angle == "MP":
-                values = mp_grazing_angle
+                values = mp_grazing_angle[0]
             else:
-                values = bs_grazing_angle
+                values = bs_grazing_angle[0]
 
             cmap = mpl.colormaps['plasma']
             norm = Normalize(vmin=min(values), vmax=max(values))
@@ -177,10 +142,14 @@ for data, name in configs:
         plot_all_ephemeris([data_type[0][0]["UTC"].isoformat(),data_type[-1][-1]["UTC"].isoformat()], color='none', ax=ax, boundaries=True, frame="MSM")
 
         # Plot normal vectors
-        ax[-1].quiver(ms_crossings["X MSO"], np.sqrt(ms_crossings["Y MSO"]**2 + (ms_crossings["Z MSO"] - Zd.value)**2), [arr[0] for arr in grazing_angle_vectors[:,1]], [arr[1] for arr in grazing_angle_vectors[:,1]], color="red")
+        ax[-1].quiver(mp_crossings["X MSO"], mp_rho, mp_grazing_angle[1][0], mp_grazing_angle[1][1], color="blue")
+
+        ax[-1].quiver(bs_crossings["X MSO"], bs_rho, bs_grazing_angle[1][0], bs_grazing_angle[1][1], color="blue")
 
         # Plot velocity vectors
-        ax[-1].quiver(ms_crossings["X MSO"], np.sqrt(ms_crossings["Y MSO"]**2 + (ms_crossings["Z MSO"] - Zd.value)**2), [arr[0] for arr in grazing_angle_vectors[:,2]], [arr[1] for arr in grazing_angle_vectors[:,2]], color='blue')
+        ax[-1].quiver(mp_crossings["X MSO"], mp_rho, mp_grazing_angle[2][0], mp_grazing_angle[2][1], color="red")
+
+        ax[-1].quiver(bs_crossings["X MSO"], bs_rho, bs_grazing_angle[2][0], bs_grazing_angle[2][1], color="red")
 
         fig.suptitle(label)
 

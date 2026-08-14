@@ -27,6 +27,8 @@ from hermpymod.classes.panels import PlanarplotPanel,  HistogramPanel
 from hermpymod.functions.plot_all import plot_all_ephemeris
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 from hermpymod.functions.grazing_angle import get_grazing_angle
+from hermpymod.functions.magnetosheath_traversals import magnetosheath_crossings
+
 
 
 home_dir = os.getenv('HOME')
@@ -72,45 +74,12 @@ def conic_section(theta, p, epsilon):
 hollman_crossing_list = parse_crossing_list()
 hollman_crossing_list["UTC"] = Time(hollman_crossing_list["UTC"]).to_datetime()
 
-
-"""
-Function to pair the crossings just before and after the magnetosheath
-"""
-
-
-def delta_t_magenetosheath(crossing_list):
-    crossing_time = Time(crossing_list["UTC"]).to_datetime()
-    crossing_label = crossing_list["Label"]
-
-    crossings_delta_t = [(crossing_time[i+1] - crossing_time[i]) for i in range(len(crossing_time) -1)]
-
-    crossings_delta_t = [i.total_seconds()/3600 for i in crossings_delta_t]
-
-    ms_out = []
-    ms_in = []
-
-
-    for idx, crossing in enumerate(crossing_list):
-        if crossing["Label"] == "MP_OUT":
-            if crossing_label[idx + 1] == "BS_OUT":
-                ms_out.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        elif crossing["Label"] == "BS_IN":
-            if crossing_label[idx + 1] == "MP_IN":
-                ms_in.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        
-
-    return crossings_delta_t, ms_out , ms_in
-
 configs = [
         (hollman_crossing_list, "Hollman")
         ]
 
 for data, name in configs:
-    _, ms_out, ms_in = delta_t_magenetosheath(data)
+    ms_out, ms_in = magnetosheath_crossings(data)
 
     """
     Plots to make, 
@@ -209,9 +178,13 @@ for data, name in configs:
 
             theta_bins = np.linspace(0, np.pi, 20)
             compression_bins = np.linspace(-1, 1, 100)
+            print(crossing)
+
+            crossing_rho = np.sqrt(crossing["Y MSO"]**2 + (crossing["Z MSO"] - Zd)**2)
+            crossing_pos = np.array([crossing["X MSO"], crossing_rho])
 
             with spice_client.KernelPool():
-                grazing_angle = get_grazing_angle(crossing, function=boundary_label)
+                grazing_angle = get_grazing_angle(time=crossing["UTC"], position = crossing_pos, function=boundary_label)
 
             print(grazing_angle)
 

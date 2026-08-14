@@ -11,10 +11,6 @@ frame_types = Literal["MSM", "MSO"]
 Zd = Constants.DIPOLE_OFFSET.to("Mercury Radii").value
 
 
-def shue_model(cos_theta, Rss, alpha):
-    return Rss*(2/(1 + cos_theta))**alpha
-
-
 def plot_magnetospheric_boundaries(
     ax: plt.Axes,
     plane: Literal["xy", "yz", "xz"] = "xy",
@@ -220,22 +216,26 @@ def plot_magnetospheric_boundaries(
         )
 
 
-"""
-Fits boundary models to two given crossing in units of Mercury Radii.
 
-crossings : Array of crossing objects, time ordered, with MSO positions XYZ in units of Mercury Radii.
-
-function : Mode for either magnetopause or bow shock fitting.
-
-function 'Magnetopause'
-    Returns alpha, sub_solar_magnetopause
-
-function 'Bow Shock'
-    Returns epsilon, p
-"""
+def shue_model(cos_theta, Rss, alpha):
+    return Rss*(2/(1 + cos_theta))**alpha
 
 
 def boundary_fitter(crossings = [object, object], function : Literal["Bow Shock", "Magnetopause"] = "Magnetopause", epsilon=None, alpha=None):
+
+    """
+    Fits boundary models to two given crossing in units of Mercury Radii.
+
+    crossings : Array of crossing objects, time ordered, with MSO positions XYZ in units of Mercury Radii.
+
+    function : Mode for either magnetopause or bow shock fitting.
+
+    function 'Magnetopause'
+        Returns alpha, sub_solar_magnetopause
+
+    function 'Bow Shock'
+        Returns epsilon, p
+    """
 
     rho1 = np.sqrt(crossings[0]["Y MSO"]**2 + (crossings[0]["Z MSO"] - Zd)**2)
     rho2 = np.sqrt(crossings[-1]["Y MSO"]**2 + (crossings[-1]["Z MSO"] - Zd)**2)

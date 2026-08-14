@@ -5,11 +5,9 @@ from astropy.time import Time
 from hermpy.net import ClientSPICE
 from hermpymod.functions.ephemeris_downsampler import build_ephemeris_table, EPHEMERIS_FILE
 import warnings
-
-
-
-home_dir = os.getenv("HOME")
 from hermpymod.paths import DATA_DIR
+
+
 data_dir = DATA_DIR
 os.makedirs(data_dir, exist_ok = True)
 
@@ -87,4 +85,3 @@ def parse_spice_downsampled(time_range = None, units="Mercury Radii"):
                     table[col] = table[col].to(units)
 
         return table
-

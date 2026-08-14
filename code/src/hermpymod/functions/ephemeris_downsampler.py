@@ -1,20 +1,21 @@
-import astropy.units as u
 import numpy as np
+
+import astropy.units as u
 from astropy.table import QTable, vstack, hstack
-from hermpy.net import ClientSPICE
 from astropy.time import Time
-import spiceypy as spice
 from hermpy.utils import Constants as c # Need for 'Mercury Radii' unit
+from hermpy.net import ClientSPICE
+
+import spiceypy as spice
 import datetime as dt
 import os
 import warnings
 import subprocess
+from hermpymod.paths import DATA_DIR
+
 
 Zd = c.DIPOLE_OFFSET.to("Mercury Radii")
 
-
-home_dir = os.getenv("HOME")
-from hermpymod.paths import DATA_DIR
 data_dir = DATA_DIR
 
 EPHEMERIS_FILE = os.path.join(data_dir , 'orbit_ephermis_data_downsampled.ecsv')

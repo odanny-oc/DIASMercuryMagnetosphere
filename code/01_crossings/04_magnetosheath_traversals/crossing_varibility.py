@@ -24,10 +24,10 @@ from hermpymod.functions.plot_all import plot_all_ephemeris
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 from hermpymod.functions.boundary_models_mod import boundary_fitter, plot_magnetospheric_boundaries
 from hermpymod.functions.grazing_angle import get_grazing_angle
-
-
-home_dir = os.getenv('HOME')
+from hermpymod.functions.magnetosheath_traversals import magnetosheath_crossings
 from hermpymod.paths import DATA_DIR
+
+
 data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
@@ -44,41 +44,13 @@ hollman_mp_crossing_list = vstack([i for i in hollman_crossing_list if "MP" in i
 hollman_bs_crossing_list = vstack([i for i in hollman_crossing_list if "BS" in i["Label"]])
 
 
-def delta_t_magenetosheath(crossing_list):
-    crossing_time = Time(crossing_list["UTC"]).to_datetime()
-    crossing_label = crossing_list["Label"]
-
-    crossings_delta_t = [(crossing_time[i+1] - crossing_time[i]) for i in range(len(crossing_time) -1)]
-
-    crossings_delta_t = [i.total_seconds()/3600 for i in crossings_delta_t]
-
-    ms_out = []
-    ms_in = []
-
-
-    for idx, crossing in enumerate(crossing_list):
-        if crossing["Label"] == "MP_OUT":
-            if crossing_label[idx + 1] == "BS_OUT":
-                ms_out.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        elif crossing["Label"] == "BS_IN":
-            if crossing_label[idx + 1] == "MP_IN":
-                ms_in.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        
-
-    return crossings_delta_t, ms_out , ms_in
-
-
 configs = [
         (hollman_crossing_list, "Hollman")
         ]
 
 
 for data, name in configs:
-    _, ms_out, ms_in = delta_t_magenetosheath(data)
+    ms_out, ms_in = magnetosheath_crossings(data)
 
     data_sets = [
             (ms_in, r"BS IN \& MP IN", "purple"),

@@ -25,10 +25,10 @@ from hermpymod.classes.panels import PlanarplotPanel,  HistogramPanel
 from hermpymod.functions.plot_all import plot_all_ephemeris
 from hermpymod.functions.ephemeris_downsampler import parse_crossing_list
 from hermpymod.functions.mag_data_plotter import mag_data_plotter 
-
-
-home_dir = os.getenv('HOME')
+from hermpymod.functions.magnetosheath_traversals import magnetosheath_crossings
 from hermpymod.paths import DATA_DIR
+
+
 data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
@@ -40,39 +40,6 @@ c = ClientMESSENGER()
 hollman_crossing_list = parse_crossing_list()
 hollman_crossing_list["UTC"] = Time(hollman_crossing_list["UTC"]).to_datetime()
 
-
-"""
-Function to pair the crossings just before and after the magnetosheath
-"""
-
-
-def delta_t_magenetosheath(crossing_list):
-    crossing_time = Time(crossing_list["UTC"]).to_datetime()
-    crossing_label = crossing_list["Label"]
-
-    crossings_delta_t = [(crossing_time[i+1] - crossing_time[i]) for i in range(len(crossing_time) -1)]
-
-    crossings_delta_t = [i.total_seconds()/3600 for i in crossings_delta_t]
-
-    ms_out = []
-    ms_in = []
-
-
-    for idx, crossing in enumerate(crossing_list):
-        if crossing["Label"] == "MP_OUT":
-            if crossing_label[idx + 1] == "BS_OUT":
-                ms_out.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        elif crossing["Label"] == "BS_IN":
-            if crossing_label[idx + 1] == "MP_IN":
-                ms_in.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        
-
-    return crossings_delta_t, ms_out , ms_in
-
 configs = [
         (hollman_crossing_list, "Hollman")
         ]
@@ -80,7 +47,7 @@ configs = [
 # ~5 Minute bins
 bins = np.arange(0,8,0.084)
 for data, name in configs:
-    dt, ms_out, ms_in = delta_t_magenetosheath(data)
+    ms_out, ms_in = magnetosheath_crossings(data)
 
     """
     Plots to make, 

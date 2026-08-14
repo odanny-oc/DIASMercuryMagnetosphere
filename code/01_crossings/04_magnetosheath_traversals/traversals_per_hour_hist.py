@@ -25,10 +25,10 @@ from hermpymod.functions.encounters import encounter_finder, parse_encounters_li
 from hermpymod.functions.data_per_orbit import orbit_data
 from hermpymod.functions.boundary_models_mod import plot_magnetospheric_boundaries
 from hermpymod.functions.plot_all import plot_all_ephemeris
-
-
-home_dir = os.getenv('HOME')
+from hermpymod.functions.magnetosheath_traversals import magnetosheath_crossings
 from hermpymod.paths import DATA_DIR
+
+
 data_dir = DATA_DIR
 img_dir = "../../../plots_and_images/"
 
@@ -36,39 +36,6 @@ img_dir = "../../../plots_and_images/"
 Zd = Constants.DIPOLE_OFFSET.to("Mercury Radii")
 
 plt.style.use(img_dir + "presentation.mplstyle")
-
-
-"""
-Function to pair the crossings just before and after the magnetosheath
-"""
-
-def delta_t_magenetosheath(crossing_data):
-    crossing_list = crossing_data.copy()
-    crossing_label = crossing_list["Label"]
-
-    crossings_delta_t = [(crossing_list["UTC"][i+1] - crossing_list["UTC"][i]) for i in range(len(crossing_list["UTC"]) -1)]
-
-    crossings_delta_t = [i.total_seconds()/3600 for i in crossings_delta_t]
-
-    ms_out = []
-    ms_in = []
-
-
-    for idx, crossing in enumerate(crossing_list):
-        if crossing["Label"] == "MP_OUT":
-            if crossing_label[idx + 1] == "BS_OUT":
-                ms_out.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        elif crossing["Label"] == "BS_IN":
-            if crossing_label[idx + 1] == "MP_IN":
-                ms_in.append([crossing, crossing_list[idx + 1]])
-            else:
-                continue
-        
-
-    return crossings_delta_t, ms_out , ms_in
-
 
 crossing_data = parse_crossing_list()
 crossing_data["UTC"] = Time(crossing_data["UTC"]).to_datetime()
@@ -85,8 +52,7 @@ residence_time.append(0)
 
 ephemeris_rho = np.sqrt(ephemeris_data["Y MSM"]**2 + ephemeris_data["Z MSM"]**2)
 
-_, ms_out , ms_in = delta_t_magenetosheath(crossing_data)
-
+ms_out , ms_in = magnetosheath_crossings(crossing_data)
 
 
 ms_out_dt = [i[-1]["UTC"] - i[0]["UTC"] for i in ms_out]

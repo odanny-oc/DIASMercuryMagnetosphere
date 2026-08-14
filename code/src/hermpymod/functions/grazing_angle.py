@@ -41,6 +41,25 @@ spice_client.KERNEL_LOCATIONS.update(
 def get_boundary_normal(
     position, boundary: Literal["Bow Shock", "Magnetopause"]
 ) -> Tuple[float, float]:
+    
+    """
+    Calculates the normal vector to the boundary as if the boundary was at the given point
+
+    The surface normal is determined in the following way:
+
+    We find the closest position on the Winslow (2013) average BS and MP model
+    Assuming any expansion / compression occurs parallel to the normal vector
+    of the curve, the vector to the closest point on the BS / MP to MESSENGER
+    is parallel with the bow shock normal at that closest point.
+
+    The vectors are determined in the MSM' cylindrical coordinate system
+    (X MSM', sqrt( (Y MSM')^2 + (Z MSM')^2 )).
+
+    position: List of three points (XYZ) in MSM coordinates, in units of Mercury radii. Can be indivdual point of list multiple points
+    boundary: Which boundary normal, bow shock or magnetopause.
+
+    returns: Vectors as lists [X, rho] in MSM in units of Mercury, or list of vectors if "position" was multiple points.
+    """
 
     match boundary:
         case "Bow Shock":
@@ -120,22 +139,16 @@ def get_boundary_normal(
 
 
 def get_grazing_angle(
-    crossing,
+    time,
+    position,
     function: Literal["Bow Shock", "Magnetopause"] = "Bow Shock",
-    frame: Literal["MSO", "MSM"] = "MSO",
     return_vectors: bool = False,
     verbose: bool = False,
 ):
     """Determine the grazing angle for a given boundary crossing
 
     We determine the grazing angle by comparing the velocity vector of
-    MESSENGER, to the surface normal of the boundary for that crossing. The
-    surface normal is determined in the following way:
-
-    We find the closest position on the Winslow (2013) average BS and MP model
-    Assuming any expansion / compression occurs parallel to the normal vector
-    of the curve, the vector to the closest point on the BS / MP to MESSENGER
-    is parallel with the bow shock normal at that closest point.
+    MESSENGER, to the surface normal of the boundary at that position.
 
     These two vectors are determined in the MSM' cylindrical coordinate system
     (X MSM', sqrt( (Y MSM')^2 + (Z MSM')^2 )).
@@ -143,15 +156,11 @@ def get_grazing_angle(
 
     Parameters
     ----------
-    crossing :
-        Crossing object as saved in Hollman et al. crossing list 2025
+    time: dt.datetime.
+        Can be singular or list, times for each corresponding position
 
-        Must contain columns matching:
-        'UTC'
-        'X MSO'
-        'Y MSO'
-        'Z MSO'
-        'Label'
+    position: list {[X, rho]} or list of lists {[[X0, rho0], [X1, rho1], ...]}
+        One or multple points in cylindrical MSM coordinates.
 
     function : str {Bow Shock, Magnetopause}
         Which boundary function to compare against
@@ -172,34 +181,18 @@ def get_grazing_angle(
         The grazing angle in degrees for that crossing
     """
 
-    # if isinstance(crossing, Iterable) and not isinstance(crossing, pd.Series):
-    #     print("Using vectorised grazing angle calculation")
-    #     return Get_Grazing_Angle_Vectorised(
-    #         crossing, function, return_vectors, aberrate, verbose
-    #     )
+    next_position = parse_spice((time + dt.timedelta(seconds= 1)), frame='MSM')
 
-    if frame=="MSO":
-        start_position = crossing["X MSO", "Y MSO", "Z MSO"]
-
-    elif frame=="MSM":
-        crossing["Z MSO"] = crossing["Z MSO"] + Zd.value
-        start_position = crossing["X MSO", "Y MSO", "Z MSO"]
-
-    next_position = parse_spice((Time(crossing["UTC"]).to_datetime() + dt.timedelta(seconds= 1)), frame=frame)
-
-    xlab, ylab ,zlab = [i for i in next_position.keys() if frame in i]
+    xlab, ylab ,zlab = [i for i in next_position.keys() if 'MSM' in i]
 
     if len(next_position) == 1:
         next_position = next_position[0]
 
-    cylindrical_start_position = np.array(
-        [start_position["X MSO"], np.sqrt(start_position["Y MSO"] ** 2 + start_position["Z MSO"] ** 2)]
-    )
+    cylindrical_start_position = position
 
     cylindrical_next_position = np.array(
         [next_position[xlab].value, np.sqrt(next_position[ylab].value ** 2 + next_position[zlab].value ** 2)]
     )
-
 
     # Mercury radii/s
     cylindrical_velocity = cylindrical_next_position - cylindrical_start_position
@@ -244,8 +237,8 @@ def get_grazing_angle(
     
 
     if verbose:
-        print(f"Crossing Start Time: {crossing['Start Time']}")
-        print(f"Crossing Type: {crossing['Type']}")
+        print(f"Crossing Start Time: {position['Start Time']}")
+        print(f"Crossing Type: {position['Type']}")
         print(f"Spacecraft Position: {cylindrical_start_position}")
         print(f"Normal Vector (MSM): {normal_vector}")
         print(f"Velocity Vector (MSM): {cylindrical_velocity}")
