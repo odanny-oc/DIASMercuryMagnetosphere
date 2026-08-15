@@ -8,10 +8,6 @@ Be sure to have all the dependencies installed
 - Python
 - pyqt6 (wayland)
 
-```
-export PATH=$PATH:/path/to/latex/bin
-```
-
 ## Usage
 To get started, clone the repository using the link
 
