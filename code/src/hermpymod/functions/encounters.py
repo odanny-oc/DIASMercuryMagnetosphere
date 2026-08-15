@@ -205,6 +205,9 @@ def parse_encounters_list(force_rebuild=False, verbose=False):
         # Start/end UTC times for each encounter
         time_start = [i["UTC"][0] for i in encounters_list]
         time_end = [i["UTC"][-1] for i in encounters_list]
+        
+        # Number of crossings per encounter
+        crossings_number = [len(i) for i in encounters_list]
 
         # Match each encounter's start time to the nearest preceding periapsis to get its orbit number
         orbits = parse_periapsis_data()
@@ -229,6 +232,7 @@ def parse_encounters_list(force_rebuild=False, verbose=False):
                 "Time Start": time_start,
                 "Time End": time_end,
                 "Label": label,
+                "Number of Crossings": crossings_number,
                 "Encounter Duration": np.round(encounter_duration, sig_figs,),
                 "Orbit Number": orbit_number
                 })
