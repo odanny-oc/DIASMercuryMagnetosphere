@@ -72,7 +72,7 @@ hollman_encounters_data = encounter_finder(crossing_data)
 ephemeris_data = parse_spice_downsampled()
 ephemeris_data["UTC"] = ephemeris_data["UTC"].to_datetime()
 
-encounter_list = parse_encounters_list(force_rebuild=True)
+encounter_list = parse_encounters_list()
 encounter_times_start = Time(encounter_list["Time Start"]).to_datetime()
 encounter_times_end = Time(encounter_list["Time End"]).to_datetime()
 
